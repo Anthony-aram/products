@@ -23,4 +23,6 @@ public class ProductDto {
     private Float rating;
     private Integer stock;
     private Set<String> images;
+    @NotNull
+    private CategoryDto categoryDto;
 }

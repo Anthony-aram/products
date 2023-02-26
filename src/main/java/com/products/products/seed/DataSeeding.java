@@ -1,6 +1,8 @@
 package com.products.products.seed;
 
+import com.products.products.entity.Category;
 import com.products.products.entity.Product;
+import com.products.products.repository.CategoryRepository;
 import com.products.products.repository.ProductRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -10,14 +12,36 @@ import java.util.Arrays;
 @Component
 public class DataSeeding implements CommandLineRunner {
     private final ProductRepository productRepository;
+    private  final CategoryRepository categoryRepository;
 
-    public DataSeeding(ProductRepository productRepository) {
+    public DataSeeding(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
+        loadCategoryData();
         loadProductData();
+    }
+
+    private void loadCategoryData() {
+        if(categoryRepository.count() == 0) {
+            Category phone = Category.builder()
+                    .id(1)
+                    .name("Téléphone")
+                    .build();
+            Category tablette = Category.builder()
+                    .id(2)
+                    .name("Tablet")
+                    .build();
+            Category laptop = Category.builder()
+                    .id(3)
+                    .name("Laptop")
+                    .build();
+
+            categoryRepository.saveAll(Arrays.asList(phone, tablette, laptop));
+        }
     }
 
     private void loadProductData() {
@@ -30,6 +54,10 @@ public class DataSeeding implements CommandLineRunner {
                     .rating(4F)
                     .stock(50)
                     .discountPercentage(8F)
+                    .category(Category.builder()
+                            .id(1)
+                            .name("Téléphone")
+                            .build())
                     .build();
             Product macBook = Product.builder()
                     .id(2)
@@ -38,6 +66,10 @@ public class DataSeeding implements CommandLineRunner {
                     .price(1199F)
                     .rating(4.5F)
                     .stock(67)
+                    .category(Category.builder()
+                            .id(3)
+                            .name("Laptop")
+                            .build())
                     .build();
             Product ipad = Product.builder()
                     .id(3)
@@ -46,6 +78,10 @@ public class DataSeeding implements CommandLineRunner {
                     .price(589.99F)
                     .rating(5F)
                     .stock(1)
+                    .category(Category.builder()
+                            .id(2)
+                            .name("Tablet")
+                            .build())
                     .build();
 
             productRepository.saveAll(Arrays.asList(iphone14, macBook, ipad));

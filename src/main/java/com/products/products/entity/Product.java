@@ -45,4 +45,10 @@ public class Product {
     private LocalDateTime dateCreated;
     @UpdateTimestamp
     private LocalDateTime lastUpdated;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id",
+            foreignKey = @ForeignKey(name = "FK_Categories_Products"),
+            referencedColumnName = "id",
+            nullable = false)
+    private Category category;
 }
