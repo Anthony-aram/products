@@ -1,13 +1,17 @@
 package com.products.products.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 @Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductDto {
     private int id;
     @NotEmpty(message = "Title should not be null or empty")
@@ -24,5 +28,5 @@ public class ProductDto {
     private Integer stock;
     private Set<String> images;
     @NotNull
-    private CategoryDto categoryDto;
+    private CategoryDto category;
 }
