@@ -7,9 +7,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -34,6 +31,4 @@ public class Category {
     private LocalDateTime dateCreated;
     @UpdateTimestamp
     private LocalDateTime lastUpdated;
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Product> products = new HashSet<>();
 }
