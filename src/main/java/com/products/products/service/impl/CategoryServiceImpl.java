@@ -4,15 +4,20 @@ import com.products.products.dto.CategoryDto;
 import com.products.products.entity.Category;
 import com.products.products.repository.CategoryRepository;
 import com.products.products.service.CategoryService;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final ModelMapper modelMapper;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, ModelMapper modelMapper) {
         this.categoryRepository = categoryRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -23,16 +28,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private CategoryDto MapToDto(Category category) {
-        return CategoryDto.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .build();
+        return modelMapper.map(category, CategoryDto.class);
     }
 
     private Category MapToEntity(CategoryDto categoryDto) {
-        return Category.builder()
-                .id(categoryDto.getId())
-                .name(categoryDto.getName())
-                .build();
+        return modelMapper.map(categoryDto, Category.class);
     }
 }
