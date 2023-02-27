@@ -2,15 +2,23 @@ package com.products.products.controller;
 
 import com.products.products.dto.ProductDto;
 import com.products.products.service.ProductService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("api/products")
+@Tag(name = "Products", description = "Endpoints for managing products")
 public class ProductController {
     private final ProductService productService;
 
@@ -19,12 +27,112 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<ProductDto> getAllProducts() {
-        return productService.getAllProducts();
+    @Operation(
+            summary = "Get products",
+            description = "Get all the products",
+            tags = {"Products"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+                    ),
+                    @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
+            })
+    public ResponseEntity<List<ProductDto>> getAllProducts() {
+        return ResponseEntity.ok(productService.getAllProducts());
     }
 
     @GetMapping("/category/{id}")
-    public List<ProductDto> getAllByCategoryId(@PathVariable(name = "id") int categoryId) {
-        return productService.getAllByCategoryId(categoryId);
+    @Operation(
+            summary = "Get products",
+            description = "Get products by category id",
+            tags = {"Products"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+                    ),
+                    @ApiResponse(
+                            description = "Not found",
+                            responseCode = "404",
+                            content = @Content
+                    ),
+                    @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
+            })
+    public ResponseEntity<List<ProductDto>> getAllProductsByCategoryId(@Parameter(description = "Category id", example = "1") @PathVariable(name = "id") int categoryId) {
+        return ResponseEntity.ok(productService.getAllProductsByCategoryId(categoryId));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(
+            summary = "Get a product",
+            description = "Get a product by id",
+            tags = {"Products"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json", schema =@Schema(implementation = ProductDto.class))
+                    ),
+                    @ApiResponse(description = "Not found", responseCode = "404", content = @Content),
+                    @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
+            })
+    public ResponseEntity<ProductDto> getProductById(@Parameter(description = "Product id", example = "1") @PathVariable(name = "id") int productId) {
+        return ResponseEntity.ok(productService.getProductById(productId));
+    }
+
+    @PostMapping
+    @Operation(
+            summary = "Create a product",
+            description = "Create a new product",
+            tags = {"Products"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "201",
+                            content = @Content(mediaType = "application/json", schema =@Schema(implementation = ProductDto.class))
+                    ),
+                    @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
+            })
+    public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto) {
+        return new ResponseEntity<>(productService.createProduct(productDto), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(
+            summary = "Update a product",
+            description = "Update a new product",
+            tags = {"Products"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json", schema =@Schema(implementation = ProductDto.class))
+                    ),
+                    @ApiResponse(description = "Not found", responseCode = "404", content = @Content),
+                    @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
+            })
+    public ResponseEntity<ProductDto> updateProduct(@Valid @RequestBody ProductDto productDto, @Parameter(description = "Product id", example = "1") @PathVariable(name = "id") int productId) {
+        return ResponseEntity.ok(productService.updateProduct(productDto, productId));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Delete a product",
+            description = "Delete a product",
+            tags = {"Products"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json", schema =@Schema(implementation = String.class))
+                    ),
+                    @ApiResponse(description = "Not found", responseCode = "404", content = @Content),
+                    @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
+            })
+    public ResponseEntity<String> deleteProduct(@Parameter(description = "Product id", example = "1") @PathVariable(name = "id") int productId) {
+        return ResponseEntity.ok("Product deleted successfully");
     }
 }

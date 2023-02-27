@@ -2,6 +2,7 @@ package com.products.products.service.impl;
 
 import com.products.products.dto.ProductDto;
 import com.products.products.entity.Product;
+import com.products.products.exception.ResourceNotFoundException;
 import com.products.products.repository.ProductRepository;
 import com.products.products.service.ProductService;
 import org.modelmapper.ModelMapper;
@@ -22,19 +23,47 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDto> getAllProducts() {
-       return productRepository.findAll().stream().map(this::MapToDto).collect(Collectors.toList());
+       return productRepository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<ProductDto> getAllByCategoryId(int categoryId) {
-        return productRepository.findByCategoryId(categoryId).stream().map(this::MapToDto).collect(Collectors.toList());
+    public List<ProductDto> getAllProductsByCategoryId(int categoryId) {
+        return productRepository.findByCategoryId(categoryId).stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
-    private ProductDto MapToDto(Product product) {
+    @Override
+    public ProductDto getProductById(int productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        return mapToDto(product);
+    }
+
+    @Override
+    public ProductDto createProduct(ProductDto productDto) {
+        return mapToDto(productRepository.save(mapToEntity(productDto)));
+    }
+
+    @Override
+    public ProductDto updateProduct(ProductDto productDto, int id) {
+        Product foundProduct = productRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        foundProduct.setTitle(productDto.getTitle());
+        foundProduct.setDescription(productDto.getDescription());
+        foundProduct.setPrice(productDto.getPrice());
+
+        return mapToDto(productRepository.save(foundProduct));
+    }
+
+    @Override
+    public void deleteProduct(int productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        productRepository.delete(product);
+    }
+
+    private ProductDto mapToDto(Product product) {
         return modelMapper.map(product, ProductDto.class);
     }
 
-    private Product MapToEntity(ProductDto productDto) {
+    private Product mapToEntity(ProductDto productDto) {
         return modelMapper.map(productDto, Product.class);
     }
 }
