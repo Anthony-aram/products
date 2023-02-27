@@ -2,13 +2,11 @@ package com.products.products.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
-@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,7 +20,7 @@ public class ProductDto {
     private String description;
     @NotNull
     private Float price;
-    private Float discountPercentage;
+    private Integer discountPercentage;
     @Min(0) @Max(5)
     private Float rating;
     private Integer stock;

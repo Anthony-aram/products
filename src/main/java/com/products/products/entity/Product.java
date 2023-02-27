@@ -35,11 +35,11 @@ public class Product {
     private String description;
     @Column(nullable = false)
     private Float price;
-    private Float discountPercentage = 0F;
+    private Integer discountPercentage;
     @Min(0) @Max(5)
     private Float rating;
     @Column(nullable = false)
-    private Integer stock = 0;
+    private Integer stock;
     private Set<String> images;
     @CreationTimestamp
     private LocalDateTime dateCreated;

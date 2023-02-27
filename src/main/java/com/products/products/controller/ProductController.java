@@ -1,7 +1,9 @@
 package com.products.products.controller;
 
+import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
 import com.products.products.service.ProductService;
+import com.products.products.utils.ConstantsUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -28,7 +30,7 @@ public class ProductController {
 
     @GetMapping
     @Operation(
-            summary = "Get products",
+            summary = "Get all products",
             description = "Get all the products",
             tags = {"Products"},
             responses = {
@@ -39,13 +41,18 @@ public class ProductController {
                     ),
                     @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
             })
-    public ResponseEntity<List<ProductDto>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<PageResponse<ProductDto>> getAllProducts(
+            @RequestParam(value = "pageNo", defaultValue = ConstantsUtils.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = ConstantsUtils.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = ConstantsUtils.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = ConstantsUtils.DEFAULT_SORT_DIRECTION, required = false) String sortDir
+    ) {
+        return ResponseEntity.ok(productService.getAllProducts(pageNo, pageSize, sortBy, sortDir));
     }
 
     @GetMapping("/category/{id}")
     @Operation(
-            summary = "Get products",
+            summary = "Get products by category",
             description = "Get products by category id",
             tags = {"Products"},
             responses = {
@@ -85,7 +92,7 @@ public class ProductController {
 
     @PostMapping
     @Operation(
-            summary = "Create a product",
+            summary = "Create a single product",
             description = "Create a new product",
             tags = {"Products"},
             responses = {

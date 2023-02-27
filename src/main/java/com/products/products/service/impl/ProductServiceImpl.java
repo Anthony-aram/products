@@ -1,11 +1,16 @@
 package com.products.products.service.impl;
 
+import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
 import com.products.products.entity.Product;
 import com.products.products.exception.ResourceNotFoundException;
 import com.products.products.repository.ProductRepository;
 import com.products.products.service.ProductService;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +27,26 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> getAllProducts() {
-       return productRepository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
+    public PageResponse<ProductDto> getAllProducts(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        // Create pageable instance
+        Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        List<ProductDto> content = productPage.getContent().stream().map(this::mapToDto).collect(Collectors.toList());
+
+        PageResponse<ProductDto> productResponse = new PageResponse<>(
+                content,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages(),
+                productPage.isLast()
+        );
+
+       return productResponse;
     }
 
     @Override

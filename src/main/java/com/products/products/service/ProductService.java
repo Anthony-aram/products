@@ -1,11 +1,12 @@
 package com.products.products.service;
 
+import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
 
 import java.util.List;
 
 public interface ProductService {
-    List<ProductDto> getAllProducts();
+    PageResponse<ProductDto> getAllProducts(int pageNo, int pageSize, String sortBy, String sortDir);
     List<ProductDto> getAllProductsByCategoryId(int categoryId);
     ProductDto getProductById(int productId);
     ProductDto createProduct(ProductDto productDto);
