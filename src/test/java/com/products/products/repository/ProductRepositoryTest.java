@@ -18,8 +18,11 @@ public class ProductRepositoryTest {
     @Autowired
     private ProductRepository productRepository;
 
+    /**
+     * Test save => Return product
+     */
     @Test
-    public void productRepository_save_returnSavedProduct() {
+    public void productRepository_save_returnProduct() {
         Product product = Product.builder()
                 .title("title")
                 .description("description")
@@ -40,8 +43,11 @@ public class ProductRepositoryTest {
         Assertions.assertThat(savedProduct.getId()).isGreaterThan(0);
     }
 
+    /**
+     * Test findAll => Return products
+     */
     @Test
-    public void productRepository_getAll_returnMoreThanOneProduct() {
+    public void productRepository_getAll_returnProducts() {
         Product product = Product.builder()
                 .title("titleTest")
                 .description("description")
@@ -78,6 +84,9 @@ public class ProductRepositoryTest {
         Assertions.assertThat(productList.size()).isGreaterThan(1);
     }
 
+    /**
+     * Test findById => Return product
+     */
     @Test
     public void productRepository_findById_returnProduct() {
         Product product = Product.builder()
@@ -101,8 +110,11 @@ public class ProductRepositoryTest {
         Assertions.assertThat(foundProduct).isNotNull();
     }
 
+    /**
+     * Test save => Return product
+     */
     @Test
-    public void productRepository_updateProduct_returnProductNotNull() {
+    public void productRepository_updateProduct_returnProduct() {
         Product product = Product.builder()
                 .title("titleTest")
                 .description("description")
@@ -128,6 +140,9 @@ public class ProductRepositoryTest {
         Assertions.assertThat(updatedProduct.getTitle()).isEqualTo("title updated");
     }
 
+    /**
+     * Test delete => Return void
+     */
     @Test
     public void productRepository_deleteProduct_returnProductIsEmpty() {
         Product product = Product.builder()

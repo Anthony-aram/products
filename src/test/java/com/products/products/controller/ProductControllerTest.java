@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.products.products.dto.CategoryDto;
 import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
-import com.products.products.entity.Category;
-import com.products.products.entity.Product;
 import com.products.products.exception.ResourceNotFoundException;
 import com.products.products.service.ProductService;
 import com.products.products.utils.ConstantsUtils;
@@ -23,12 +21,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @WebMvcTest(controllers = ProductController.class)
@@ -43,8 +39,6 @@ public class ProductControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-    private Product product;
-    private Category category;
     private CategoryDto categoryDto;
     private ProductDto productDto;
 
@@ -52,19 +46,6 @@ public class ProductControllerTest {
     public void init() {
         categoryDto = CategoryDto.builder()
                 .name("name")
-                .build();
-        category = Category.builder()
-                .name("name")
-                .build();
-
-        product = Product.builder()
-                .title("title")
-                .description("description")
-                .price(1F)
-                .discountPercentage(10)
-                .rating(1F)
-                .stock(1)
-                .category(category)
                 .build();
 
         productDto = ProductDto.builder()
@@ -78,9 +59,13 @@ public class ProductControllerTest {
                 .build();
     }
 
+    /**
+     * Test GetAllProducts => Return PageResponse of products
+     * @throws Exception Exception
+     */
     @Test
     public void productController_getAllProducts_returnPageResponse() throws Exception {
-        PageResponse<ProductDto> productResponse = new PageResponse<>(Arrays.asList(productDto), 0, 10, 20, 2, false);
+        PageResponse<ProductDto> productResponse = new PageResponse<>(Collections.singletonList(productDto), 0, 10, 20, 2, false);
         when(productService.getAllProducts(0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION)).thenReturn(productResponse);
 
         ResultActions response = mockMvc.perform(get("/api/products")
@@ -92,6 +77,47 @@ public class ProductControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content.size()", CoreMatchers.is(productResponse.getContent().size())));
     }
 
+    /**
+     * Test GetProductsByCategoryId => Return PageResponse of products
+     * @throws Exception Exception
+     */
+    @Test
+    public void productController_getProductsByCategoryId_returnPageResponse() throws Exception {
+        int categoryId = 1;
+        PageResponse<ProductDto> productResponse = new PageResponse<>(Collections.singletonList(productDto), 0, 10, 20, 2, false);
+        when(productService.getAllProductsByCategoryId(categoryId,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION)).thenReturn(productResponse);
+
+        ResultActions response = mockMvc.perform(get("/api/products/category/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("pageNo","0")
+                .param("pageSize", "10"));
+
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.size()", CoreMatchers.is(productResponse.getContent().size())));
+    }
+
+    /**
+     * Test GetProductsByCategoryId => Return NotFound
+     * @throws Exception Exception
+     */
+    @Test
+    public void productController_getProductsByCategoryId_returnNotFound() throws Exception {
+        int categoryId = 1;
+
+        when(productService.getAllProductsByCategoryId(categoryId,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION)).thenThrow(ResourceNotFoundException.class);
+
+        ResultActions response = mockMvc.perform(get("/api/products/category/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("pageNo","0")
+                .param("pageSize", "10"));
+
+        response.andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    /**
+     * Test GetProductById => Return found product
+     * @throws Exception Exception
+     */
     @Test
     public void productController_getProductById_returnProductDto() throws Exception {
         int productId = 1;
@@ -110,6 +136,10 @@ public class ProductControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.category.name", CoreMatchers.is(productDto.getCategory().getName())));
     }
 
+    /**
+     * Test GetProductById => Return NotFound
+     * @throws Exception Exception
+     */
     @Test
     public void productController_getProductById_returnNotFound() throws Exception {
         int productId = 1;
@@ -123,6 +153,10 @@ public class ProductControllerTest {
         response.andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
+    /**
+     * Test CreateProduct => Return product
+     * @throws Exception Exception
+     */
     @Test
     public void productController_createProduct_returnProductDto() throws Exception {
         given(productService.createProduct(ArgumentMatchers.any())).willAnswer((invocation -> invocation.getArgument(0)));
@@ -139,6 +173,10 @@ public class ProductControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.category.name", CoreMatchers.is(productDto.getCategory().getName())));
     }
 
+    /**
+     * Test UpdateProduct => Return product
+     * @throws Exception Exception
+     */
     @Test
     public void productController_updateProduct_returnProductDto() throws Exception {
         int productId = 1;
@@ -157,14 +195,52 @@ public class ProductControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.category.name", CoreMatchers.is(productDto.getCategory().getName())));
     }
 
+    /**
+     * Test UpdateProduct => Return NotFound
+     * @throws Exception Exception
+     */
     @Test
-    public void productController_deleteProductById_returnProductDto() throws Exception {
+    public void productController_updateProduct_returnNotFound() throws Exception {
         int productId = 1;
+
+        when(productService.updateProduct(productDto, productId)).thenThrow(ResourceNotFoundException.class);
+
+        ResultActions response = mockMvc.perform(put("/api/products/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsBytes(productDto)));
+
+        response.andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    /**
+     * Test DeleteProduct => Return void
+     * @throws Exception Exception
+     */
+    @Test
+    public void productController_deleteProductById_returnVoid() throws Exception {
+        int productId = 1;
+
         doNothing().when(productService).deleteProductById(productId);
 
         ResultActions response = mockMvc.perform(delete("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON));
 
         response.andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    /**
+     * Test DeleteProduct => Return NotFound
+     * @throws Exception Exception
+     */
+    @Test
+    public void productController_deleteProductById_returnNotFound() throws Exception {
+        int productId = 1;
+
+        doThrow(ResourceNotFoundException.class).when(productService).deleteProductById(productId);
+
+        ResultActions response = mockMvc.perform(delete("/api/products/1")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        response.andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 }

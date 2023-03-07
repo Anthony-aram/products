@@ -43,9 +43,12 @@ public class ProductServiceImplTest {
     @InjectMocks
     ProductServiceImpl productServiceImpl;
 
+    /**
+     * Test GetAllProducts => Return PageResponse of products
+     */
     @Test
     public void productService_getAllProducts_returnPageResponse() {
-        Page<Product> productList = Mockito.mock(Page.class);
+        Page productList = Mockito.mock(Page.class);
 
         when(productRepository.findAll(Mockito.any(Pageable.class))).thenReturn(productList);
         PageResponse<ProductDto> productDtoList = productServiceImpl.getAllProducts(0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION);
@@ -53,17 +56,30 @@ public class ProductServiceImplTest {
         Assertions.assertThat(productDtoList).isNotNull();
     }
 
+    /**
+     * Test GetAllProductsByCategoryId => Return PageResponse of products for a category
+     */
     @Test
     public void productService_getAllProductsByCategoryId_returnPageResponse() {
         int categoryId = 1;
+        Category category = Category.builder()
+                .id(categoryId)
+                .name("category")
+                .build();
+
         Page<Product> productList = Mockito.mock(Page.class);
 
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.ofNullable(category));
         when(productRepository.findByCategoryId(Mockito.any(Integer.class), Mockito.any(Pageable.class))).thenReturn(productList);
+
         PageResponse<ProductDto> productDtoList = productServiceImpl.getAllProductsByCategoryId(categoryId,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION);
 
         Assertions.assertThat(productDtoList).isNotNull();
     }
 
+    /**
+     * Test GetAllProductsByCategoryId => Return NotFound
+     */
     @Test
     public void productService_getAllProductsByCategoryId_returnNotFound() {
         int categoryId = 1;
@@ -73,8 +89,11 @@ public class ProductServiceImplTest {
         assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.getAllProductsByCategoryId(categoryId,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION));
     }
 
+    /**
+     * Test GetProductById => Return Product
+     */
     @Test
-    public void productService_getProductById_returnPageResponse() {
+    public void productService_getProductById_returnProduct() {
         int productId = 1;
         Product product = Product.builder()
                 .id(1)
@@ -98,31 +117,23 @@ public class ProductServiceImplTest {
         Assertions.assertThat(productDto).isNotNull();
     }
 
+    /**
+     * Test GetProductById => Return NotFound
+     */
     @Test
     public void productService_getProductById_returnNotFound()  {
         int productId = 1;
-        Product product = Product.builder()
-                .id(1)
-                .title("title")
-                .description("description")
-                .price(1F)
-                .discountPercentage(10)
-                .rating(1F)
-                .stock(1)
-                .category(
-                        Category.builder()
-                                .id(1)
-                                .name("name")
-                                .build()
-                ).build();
 
         when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.getProductById(productId));
     }
 
+    /**
+     * Test CreateProduct => Return product
+     */
     @Test
-    public void productService_createProduct_returnPageResponse() {
+    public void productService_createProduct_returnProduct() {
         Product product = Product.builder()
                 .title("title")
                 .description("description")
@@ -158,8 +169,11 @@ public class ProductServiceImplTest {
         Assertions.assertThat(savedProduct).isNotNull();
     }
 
+    /**
+     * Test UpdateProduct => Return product
+     */
     @Test
-    public void productService_updateProduct_returnPageResponse() {
+    public void productService_updateProduct_returnProduct() {
         int productId = 1;
         Product product = Product.builder()
                 .id(productId)
@@ -199,8 +213,38 @@ public class ProductServiceImplTest {
         Assertions.assertThat(updatedProduct).isNotNull();
     }
 
+    /**
+     * Test UpdateProduct => Return NotFound
+     */
     @Test
-    public void productService_deleteProduct_returnPageResponse() {
+    public void productService_updateProduct_returnNotFound() {
+        int productId = 1;
+
+        ProductDto productDto = ProductDto.builder()
+                .id(productId)
+                .title("title")
+                .description("description")
+                .price(1F)
+                .discountPercentage(10)
+                .rating(1F)
+                .stock(1)
+                .category(
+                        CategoryDto.builder()
+                                .id(1)
+                                .name("name")
+                                .build()
+                ).build();
+
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.updateProduct(productDto, productId));
+    }
+
+    /**
+     * Test DeleteProduct => Return void
+     */
+    @Test
+    public void productService_deleteProduct_returnVoid() {
         int productId = 1;
         Product product = Product.builder()
                 .id(productId)
@@ -221,5 +265,17 @@ public class ProductServiceImplTest {
         doNothing().when(productRepository).delete(product);
 
         assertAll(() -> productServiceImpl.deleteProductById(productId));
+    }
+
+    /**
+     * Test DeleteProduct => Return NotFound
+     */
+    @Test
+    public void productService_deleteProduct_returnNotFound() {
+        int productId = 1;
+
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.deleteProductById(productId));
     }
 }

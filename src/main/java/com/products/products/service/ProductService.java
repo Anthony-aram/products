@@ -8,6 +8,6 @@ public interface ProductService {
     PageResponse<ProductDto> getAllProductsByCategoryId(int categoryId, int pageNo, int pageSize, String sortBy, String sortDir);
     ProductDto getProductById(int productId);
     ProductDto createProduct(ProductDto productDto);
-    ProductDto updateProduct(ProductDto productDto, int id);
+    ProductDto updateProduct(ProductDto productDto, int productId);
     void deleteProductById(int productId);
 }
