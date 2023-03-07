@@ -16,8 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("api/products")
 @Tag(name = "Products", description = "Endpoints for managing products")
@@ -68,8 +66,14 @@ public class ProductController {
                     ),
                     @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
             })
-    public ResponseEntity<List<ProductDto>> getAllProductsByCategoryId(@Parameter(description = "Category id", example = "1") @PathVariable(name = "id") int categoryId) {
-        return ResponseEntity.ok(productService.getAllProductsByCategoryId(categoryId));
+    public ResponseEntity<PageResponse<ProductDto>> getAllProductsByCategoryId(
+            @Parameter(description = "Category id", example = "1") @PathVariable(name = "id") int categoryId,
+            @RequestParam(value = "pageNo", defaultValue = ConstantsUtils.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = ConstantsUtils.DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = ConstantsUtils.DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = ConstantsUtils.DEFAULT_SORT_DIRECTION, required = false) String sortDir
+) {
+        return ResponseEntity.ok(productService.getAllProductsByCategoryId(categoryId, pageNo, pageSize, sortBy, sortDir));
     }
 
     @GetMapping("/{id}")
@@ -133,13 +137,14 @@ public class ProductController {
             responses = {
                     @ApiResponse(
                             description = "Success",
-                            responseCode = "200",
+                            responseCode = "204",
                             content = @Content(mediaType = "application/json", schema =@Schema(implementation = String.class))
                     ),
                     @ApiResponse(description = "Not found", responseCode = "404", content = @Content),
                     @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
             })
-    public ResponseEntity<String> deleteProduct(@Parameter(description = "Product id", example = "1") @PathVariable(name = "id") int productId) {
-        return ResponseEntity.ok("Product deleted successfully");
+    public ResponseEntity<?> deleteProduct(@Parameter(description = "Product id", example = "1") @PathVariable(name = "id") int productId) {
+        productService.deleteProductById(productId);
+        return ResponseEntity.noContent().build();
     }
 }
