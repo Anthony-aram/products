@@ -51,6 +51,7 @@ public class ProductServiceImplTest {
         Page productList = Mockito.mock(Page.class);
 
         when(productRepository.findAll(Mockito.any(Pageable.class))).thenReturn(productList);
+
         PageResponse<ProductDto> productDtoList = productServiceImpl.getAllProducts(0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION);
 
         Assertions.assertThat(productDtoList).isNotNull();

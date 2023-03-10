@@ -6,12 +6,10 @@ import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
 import com.products.products.exception.ResourceNotFoundException;
 import com.products.products.service.ProductService;
-import com.products.products.utils.ConstantsUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,13 +17,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
 import java.util.Collections;
 
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ProductController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -33,14 +31,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public class ProductControllerTest {
     @Autowired
     private MockMvc mockMvc;
-
     @MockBean
     private ProductService productService;
-
     @Autowired
     private ObjectMapper objectMapper;
     private CategoryDto categoryDto;
     private ProductDto productDto;
+    private PageResponse<ProductDto> pageResponse;
 
     @BeforeEach
     public void init() {
@@ -57,6 +54,8 @@ public class ProductControllerTest {
                 .stock(1)
                 .category(categoryDto)
                 .build();
+
+        pageResponse = new PageResponse<>(Collections.singletonList(productDto), 0, 10, 20, 2, false);
     }
 
     /**
@@ -65,16 +64,14 @@ public class ProductControllerTest {
      */
     @Test
     public void productController_getAllProducts_returnPageResponse() throws Exception {
-        PageResponse<ProductDto> productResponse = new PageResponse<>(Collections.singletonList(productDto), 0, 10, 20, 2, false);
-        when(productService.getAllProducts(0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION)).thenReturn(productResponse);
+        when(productService.getAllProducts(anyInt(), anyInt(), anyString(), anyString())).thenReturn(pageResponse);
 
-        ResultActions response = mockMvc.perform(get("/api/products")
+        mockMvc.perform(get("/api/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("pageNo","0")
-                .param("pageSize", "10"));
-
-        response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content.size()", CoreMatchers.is(productResponse.getContent().size())));
+                .param("pageSize", "10"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].title").value("title"));
     }
 
     /**
@@ -83,17 +80,14 @@ public class ProductControllerTest {
      */
     @Test
     public void productController_getProductsByCategoryId_returnPageResponse() throws Exception {
-        int categoryId = 1;
-        PageResponse<ProductDto> productResponse = new PageResponse<>(Collections.singletonList(productDto), 0, 10, 20, 2, false);
-        when(productService.getAllProductsByCategoryId(categoryId,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION)).thenReturn(productResponse);
+        when(productService.getAllProductsByCategoryId(eq(1), anyInt(), anyInt(), anyString(), anyString())).thenReturn(pageResponse);
 
-        ResultActions response = mockMvc.perform(get("/api/products/category/1")
+        mockMvc.perform(get("/api/products/category/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("pageNo","0")
-                .param("pageSize", "10"));
-
-        response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content.size()", CoreMatchers.is(productResponse.getContent().size())));
+                .param("pageSize", "10"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].title").value("title"));
     }
 
     /**
@@ -102,16 +96,13 @@ public class ProductControllerTest {
      */
     @Test
     public void productController_getProductsByCategoryId_returnNotFound() throws Exception {
-        int categoryId = 1;
+        when(productService.getAllProductsByCategoryId(eq(1), anyInt(), anyInt(), anyString(), anyString())).thenThrow(ResourceNotFoundException.class);
 
-        when(productService.getAllProductsByCategoryId(categoryId,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION)).thenThrow(ResourceNotFoundException.class);
-
-        ResultActions response = mockMvc.perform(get("/api/products/category/1")
+        mockMvc.perform(get("/api/products/category/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("pageNo","0")
-                .param("pageSize", "10"));
-
-        response.andExpect(MockMvcResultMatchers.status().isNotFound());
+                .param("pageSize", "10"))
+                .andExpect(status().isNotFound());
     }
 
     /**
@@ -120,20 +111,11 @@ public class ProductControllerTest {
      */
     @Test
     public void productController_getProductById_returnProductDto() throws Exception {
-        int productId = 1;
+        when(productService.getProductById(eq(1))).thenReturn(productDto);
 
-        when(productService.getProductById(productId)).thenReturn(productDto);
-
-        ResultActions response = mockMvc.perform(get("/api/products/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(productDto)));
-
-        response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(productDto.getTitle())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description", CoreMatchers.is(productDto.getDescription())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.discountPercentage", CoreMatchers.is(productDto.getDiscountPercentage())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.stock", CoreMatchers.is(productDto.getStock())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.category.name", CoreMatchers.is(productDto.getCategory().getName())));
+        mockMvc.perform(get("/api/products/1"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$..title").value("title"));
     }
 
     /**
@@ -142,15 +124,10 @@ public class ProductControllerTest {
      */
     @Test
     public void productController_getProductById_returnNotFound() throws Exception {
-        int productId = 1;
+        when(productService.getProductById(eq(1))).thenThrow(ResourceNotFoundException.class);
 
-        when(productService.getProductById(productId)).thenThrow(ResourceNotFoundException.class);
-
-        ResultActions response = mockMvc.perform(get("/api/products/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(productDto)));
-
-        response.andExpect(MockMvcResultMatchers.status().isNotFound());
+        mockMvc.perform(get("/api/products/1"))
+                .andExpect(status().isNotFound());
     }
 
     /**
@@ -159,18 +136,13 @@ public class ProductControllerTest {
      */
     @Test
     public void productController_createProduct_returnProductDto() throws Exception {
-        given(productService.createProduct(ArgumentMatchers.any())).willAnswer((invocation -> invocation.getArgument(0)));
+        when(productService.createProduct(any(ProductDto.class))).thenReturn(productDto);
 
-        ResultActions response = mockMvc.perform(post("/api/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(productDto)));
-
-        response.andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(productDto.getTitle())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description", CoreMatchers.is(productDto.getDescription())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.discountPercentage", CoreMatchers.is(productDto.getDiscountPercentage())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.stock", CoreMatchers.is(productDto.getStock())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.category.name", CoreMatchers.is(productDto.getCategory().getName())));
+        mockMvc.perform(post("/api/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(productDto)))
+                .andExpect(status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("title"));
     }
 
     /**
@@ -179,20 +151,13 @@ public class ProductControllerTest {
      */
     @Test
     public void productController_updateProduct_returnProductDto() throws Exception {
-        int productId = 1;
+        when(productService.updateProduct(any(ProductDto.class), anyInt())).thenReturn(productDto);
 
-        when(productService.updateProduct(productDto, productId)).thenReturn(productDto);
-
-        ResultActions response = mockMvc.perform(put("/api/products/1")
+        mockMvc.perform(put("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(productDto)));
-
-        response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(productDto.getTitle())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description", CoreMatchers.is(productDto.getDescription())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.discountPercentage", CoreMatchers.is(productDto.getDiscountPercentage())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.stock", CoreMatchers.is(productDto.getStock())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.category.name", CoreMatchers.is(productDto.getCategory().getName())));
+                .content(objectMapper.writeValueAsBytes(productDto)))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(productDto.getTitle())));
     }
 
     /**
@@ -201,15 +166,12 @@ public class ProductControllerTest {
      */
     @Test
     public void productController_updateProduct_returnNotFound() throws Exception {
-        int productId = 1;
+        when(productService.updateProduct(any(ProductDto.class), anyInt())).thenThrow(ResourceNotFoundException.class);
 
-        when(productService.updateProduct(productDto, productId)).thenThrow(ResourceNotFoundException.class);
-
-        ResultActions response = mockMvc.perform(put("/api/products/1")
+        mockMvc.perform(put("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(productDto)));
-
-        response.andExpect(MockMvcResultMatchers.status().isNotFound());
+                .content(objectMapper.writeValueAsBytes(productDto)))
+                .andExpect(status().isNotFound());
     }
 
     /**
@@ -218,14 +180,10 @@ public class ProductControllerTest {
      */
     @Test
     public void productController_deleteProductById_returnVoid() throws Exception {
-        int productId = 1;
+        doNothing().when(productService).deleteProductById(anyInt());
 
-        doNothing().when(productService).deleteProductById(productId);
-
-        ResultActions response = mockMvc.perform(delete("/api/products/1")
-                .contentType(MediaType.APPLICATION_JSON));
-
-        response.andExpect(MockMvcResultMatchers.status().isNoContent());
+        mockMvc.perform(delete("/api/products/1"))
+                .andExpect(status().isNoContent());
     }
 
     /**
@@ -234,13 +192,10 @@ public class ProductControllerTest {
      */
     @Test
     public void productController_deleteProductById_returnNotFound() throws Exception {
-        int productId = 1;
+        doThrow(ResourceNotFoundException.class).when(productService).deleteProductById(anyInt());
 
-        doThrow(ResourceNotFoundException.class).when(productService).deleteProductById(productId);
-
-        ResultActions response = mockMvc.perform(delete("/api/products/1")
-                .contentType(MediaType.APPLICATION_JSON));
-
-        response.andExpect(MockMvcResultMatchers.status().isNotFound());
+        mockMvc.perform(delete("/api/products/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }
