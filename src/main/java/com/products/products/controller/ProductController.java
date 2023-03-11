@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/products")
+@CrossOrigin(origins = "http://localhost:3000/", maxAge = 3600)
 @Tag(name = "Products", description = "Endpoints for managing products")
 public class ProductController {
     private final ProductService productService;
