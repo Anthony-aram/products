@@ -20,16 +20,22 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ProductServiceImplTest {
+class ProductServiceImplTest {
 
     @Mock
     ProductRepository productRepository;
@@ -47,55 +53,84 @@ public class ProductServiceImplTest {
      * Test GetAllProducts => Return PageResponse of products
      */
     @Test
-    public void productService_getAllProducts_returnPageResponse() {
-        Page productList = Mockito.mock(Page.class);
+    void productService_getAllProducts_returnPageResponse() {
+        Product product = Product.builder()
+                .title("title")
+                .description("description")
+                .price(1F)
+                .discountPercentage(10)
+                .rating(1F)
+                .stock(1)
+                .category(
+                        Category.builder()
+                                .id(1)
+                                .name("name")
+                                .build()
+                ).build();
+        Pageable pageable = PageRequest.of(1, 10);
+       Page<Product> productPage = new PageImpl<>(List.of(product), pageable, 1);
 
-        when(productRepository.findAll(Mockito.any(Pageable.class))).thenReturn(productList);
+        when(productRepository.findAll(Mockito.any(Pageable.class))).thenReturn(productPage);
 
         PageResponse<ProductDto> productDtoList = productServiceImpl.getAllProducts(0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION);
 
         Assertions.assertThat(productDtoList).isNotNull();
+        Assertions.assertThat(productDtoList.getContent())
+                .isNotEmpty()
+                .size().isEqualTo(1);
     }
 
     /**
      * Test GetAllProductsByCategoryId => Return PageResponse of products for a category
      */
     @Test
-    public void productService_getAllProductsByCategoryId_returnPageResponse() {
-        int categoryId = 1;
+    void productService_getAllProductsByCategoryId_returnPageResponse() {
+        Product product = Product.builder()
+                .title("title")
+                .description("description")
+                .price(1F)
+                .discountPercentage(10)
+                .rating(1F)
+                .stock(1)
+                .category(
+                        Category.builder()
+                                .id(1)
+                                .name("name")
+                                .build()
+                ).build();
         Category category = Category.builder()
-                .id(categoryId)
+                .id(1)
                 .name("category")
                 .build();
+        Pageable pageable = PageRequest.of(1, 10);
+        Page<Product> productPage = new PageImpl<>(List.of(product), pageable, 1);
 
-        Page<Product> productList = Mockito.mock(Page.class);
+        when(categoryRepository.findById(anyInt())).thenReturn(Optional.ofNullable(category));
+        when(productRepository.findByCategoryId(Mockito.any(Integer.class), Mockito.any(Pageable.class))).thenReturn(productPage);
 
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.ofNullable(category));
-        when(productRepository.findByCategoryId(Mockito.any(Integer.class), Mockito.any(Pageable.class))).thenReturn(productList);
-
-        PageResponse<ProductDto> productDtoList = productServiceImpl.getAllProductsByCategoryId(categoryId,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION);
+        PageResponse<ProductDto> productDtoList = productServiceImpl.getAllProductsByCategoryId(1,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION);
 
         Assertions.assertThat(productDtoList).isNotNull();
+        Assertions.assertThat(productDtoList.getContent())
+                .isNotEmpty()
+                .size().isEqualTo(1);
     }
 
     /**
      * Test GetAllProductsByCategoryId => Return NotFound
      */
     @Test
-    public void productService_getAllProductsByCategoryId_returnNotFound() {
-        int categoryId = 1;
+    void productService_getAllProductsByCategoryId_returnNotFound() {
+        when(categoryRepository.findById(anyInt())).thenReturn(Optional.empty());
 
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.getAllProductsByCategoryId(categoryId,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION));
+        assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.getAllProductsByCategoryId(1,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION));
     }
 
     /**
      * Test GetProductById => Return Product
      */
     @Test
-    public void productService_getProductById_returnProduct() {
-        int productId = 1;
+    void productService_getProductById_returnProduct() {
         Product product = Product.builder()
                 .id(1)
                 .title("title")
@@ -111,30 +146,30 @@ public class ProductServiceImplTest {
                                 .build()
                 ).build();
 
-        when(productRepository.findById(productId)).thenReturn(Optional.ofNullable(product));
+        when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
 
-        ProductDto productDto = productServiceImpl.getProductById(productId);
+        ProductDto productDto = productServiceImpl.getProductById(1);
 
         Assertions.assertThat(productDto).isNotNull();
+        Assertions.assertThat(productDto).isInstanceOf(ProductDto.class);
+        Assertions.assertThat(productDto.getTitle()).isEqualTo(product.getTitle());
     }
 
     /**
      * Test GetProductById => Return NotFound
      */
     @Test
-    public void productService_getProductById_returnNotFound()  {
-        int productId = 1;
+    void productService_getProductById_returnNotFound()  {
+        when(productRepository.findById(anyInt())).thenReturn(Optional.empty());
 
-        when(productRepository.findById(productId)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.getProductById(productId));
+        assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.getProductById(1));
     }
 
     /**
      * Test CreateProduct => Return product
      */
     @Test
-    public void productService_createProduct_returnProduct() {
+    void productService_createProduct_returnProduct() {
         Product product = Product.builder()
                 .title("title")
                 .description("description")
@@ -164,17 +199,17 @@ public class ProductServiceImplTest {
                 ).build();
 
         when(productRepository.save(Mockito.any(Product.class))).thenReturn(product);
-
         ProductDto savedProduct = productServiceImpl.createProduct(productDto);
 
         Assertions.assertThat(savedProduct).isNotNull();
+        Assertions.assertThat(savedProduct.getTitle()).isEqualTo(productDto.getTitle());
     }
 
     /**
      * Test UpdateProduct => Return product
      */
     @Test
-    public void productService_updateProduct_returnProduct() {
+    void productService_updateProduct_returnProduct() {
         int productId = 1;
         Product product = Product.builder()
                 .id(productId)
@@ -206,23 +241,22 @@ public class ProductServiceImplTest {
                                 .build()
                 ).build();
 
-        when(productRepository.findById(productId)).thenReturn(Optional.ofNullable(product));
-        when(productRepository.save(product)).thenReturn(product);
+        when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
+        when(productRepository.save(any(Product.class))).thenReturn(product);
 
         ProductDto updatedProduct = productServiceImpl.updateProduct(productDto, productId);
 
         Assertions.assertThat(updatedProduct).isNotNull();
+        Assertions.assertThat(productDto.getTitle()).isEqualTo(productDto.getTitle());
     }
 
     /**
      * Test UpdateProduct => Return NotFound
      */
     @Test
-    public void productService_updateProduct_returnNotFound() {
-        int productId = 1;
-
+    void productService_updateProduct_returnNotFound() {
         ProductDto productDto = ProductDto.builder()
-                .id(productId)
+                .id(1)
                 .title("title")
                 .description("description")
                 .price(1F)
@@ -236,19 +270,18 @@ public class ProductServiceImplTest {
                                 .build()
                 ).build();
 
-        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+        when(productRepository.findById(anyInt())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.updateProduct(productDto, productId));
+        assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.updateProduct(productDto, productDto.getId()));
     }
 
     /**
      * Test DeleteProduct => Return void
      */
     @Test
-    public void productService_deleteProduct_returnVoid() {
-        int productId = 1;
+    void productService_deleteProduct_returnVoid() {
         Product product = Product.builder()
-                .id(productId)
+                .id(1)
                 .title("title")
                 .description("description")
                 .price(1F)
@@ -262,21 +295,19 @@ public class ProductServiceImplTest {
                                 .build()
                 ).build();
 
-        when(productRepository.findById(productId)).thenReturn(Optional.ofNullable(product));
-        doNothing().when(productRepository).delete(product);
+        when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
+        doNothing().when(productRepository).delete(any(Product.class));
 
-        assertAll(() -> productServiceImpl.deleteProductById(productId));
+        assertAll(() -> productServiceImpl.deleteProductById(1));
     }
 
     /**
      * Test DeleteProduct => Return NotFound
      */
     @Test
-    public void productService_deleteProduct_returnNotFound() {
-        int productId = 1;
+    void productService_deleteProduct_returnNotFound() {
+        when(productRepository.findById(anyInt())).thenReturn(Optional.empty());
 
-        when(productRepository.findById(productId)).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.deleteProductById(productId));
+        assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.deleteProductById(1));
     }
 }

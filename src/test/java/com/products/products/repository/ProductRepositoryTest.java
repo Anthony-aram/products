@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class ProductRepositoryTest {
+class ProductRepositoryTest {
 
     @Autowired
     private ProductRepository productRepository;
@@ -22,7 +22,7 @@ public class ProductRepositoryTest {
      * Test save => Return product
      */
     @Test
-    public void productRepository_save_returnProduct() {
+    void productRepository_save_returnProduct() {
         Product product = Product.builder()
                 .title("title")
                 .description("description")
@@ -47,7 +47,7 @@ public class ProductRepositoryTest {
      * Test findAll => Return products
      */
     @Test
-    public void productRepository_getAll_returnProducts() {
+    void productRepository_getAll_returnProducts() {
         Product product = Product.builder()
                 .title("titleTest")
                 .description("description")
@@ -88,7 +88,7 @@ public class ProductRepositoryTest {
      * Test findById => Return product
      */
     @Test
-    public void productRepository_findById_returnProduct() {
+    void productRepository_findById_returnProduct() {
         Product product = Product.builder()
                 .title("titleTest")
                 .description("description")
@@ -114,7 +114,7 @@ public class ProductRepositoryTest {
      * Test save => Return product
      */
     @Test
-    public void productRepository_updateProduct_returnProduct() {
+    void productRepository_updateProduct_returnProduct() {
         Product product = Product.builder()
                 .title("titleTest")
                 .description("description")
@@ -144,7 +144,7 @@ public class ProductRepositoryTest {
      * Test delete => Return void
      */
     @Test
-    public void productRepository_deleteProduct_returnProductIsEmpty() {
+    void productRepository_deleteProduct_returnProductIsEmpty() {
         Product product = Product.builder()
                 .title("titleTest")
                 .description("description")

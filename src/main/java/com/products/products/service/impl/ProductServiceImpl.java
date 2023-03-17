@@ -70,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public PageResponse<ProductDto> getAllProductsByCategoryId(int categoryId, int pageNo, int pageSize, String sortBy, String sortDir) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
 
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
@@ -98,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ProductDto getProductById(int productId) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
         return mapToDto(product);
     }
 
@@ -120,7 +120,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ProductDto updateProduct(ProductDto productDto, int productId) {
-        Product foundProduct = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        Product foundProduct = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
         foundProduct.setTitle(productDto.getTitle());
         foundProduct.setDescription(productDto.getDescription());
@@ -135,7 +135,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public void deleteProductById(int productId) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
         productRepository.delete(product);
     }
 

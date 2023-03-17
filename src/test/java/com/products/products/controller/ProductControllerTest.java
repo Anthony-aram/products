@@ -1,6 +1,7 @@
 package com.products.products.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.products.products.config.JwtService;
 import com.products.products.dto.CategoryDto;
 import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
@@ -17,30 +18,32 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ProductController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
-public class ProductControllerTest {
+class ProductControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
     private ProductService productService;
     @Autowired
     private ObjectMapper objectMapper;
+    @MockBean
+    private JwtService jwtService;
     private CategoryDto categoryDto;
     private ProductDto productDto;
     private PageResponse<ProductDto> pageResponse;
 
     @BeforeEach
-    public void init() {
+    void init() {
         categoryDto = CategoryDto.builder()
                 .name("name")
                 .build();
@@ -63,7 +66,7 @@ public class ProductControllerTest {
      * @throws Exception Exception
      */
     @Test
-    public void productController_getAllProducts_returnPageResponse() throws Exception {
+    void productController_getAllProducts_returnPageResponse() throws Exception {
         when(productService.getAllProducts(anyInt(), anyInt(), anyString(), anyString())).thenReturn(pageResponse);
 
         mockMvc.perform(get("/api/products")
@@ -71,7 +74,7 @@ public class ProductControllerTest {
                 .param("pageNo","0")
                 .param("pageSize", "10"))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].title").value("title"));
+                .andExpect(jsonPath("$.content[0].title").value("title"));
     }
 
     /**
@@ -79,15 +82,15 @@ public class ProductControllerTest {
      * @throws Exception Exception
      */
     @Test
-    public void productController_getProductsByCategoryId_returnPageResponse() throws Exception {
-        when(productService.getAllProductsByCategoryId(eq(1), anyInt(), anyInt(), anyString(), anyString())).thenReturn(pageResponse);
+    void productController_getProductsByCategoryId_returnPageResponse() throws Exception {
+        when(productService.getAllProductsByCategoryId(anyInt(), anyInt(), anyInt(), anyString(), anyString())).thenReturn(pageResponse);
 
         mockMvc.perform(get("/api/products/category/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("pageNo","0")
                 .param("pageSize", "10"))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].title").value("title"));
+                .andExpect(jsonPath("$.content[0].title").value("title"));
     }
 
     /**
@@ -95,8 +98,8 @@ public class ProductControllerTest {
      * @throws Exception Exception
      */
     @Test
-    public void productController_getProductsByCategoryId_returnNotFound() throws Exception {
-        when(productService.getAllProductsByCategoryId(eq(1), anyInt(), anyInt(), anyString(), anyString())).thenThrow(ResourceNotFoundException.class);
+    void productController_getProductsByCategoryId_returnNotFound() throws Exception {
+        when(productService.getAllProductsByCategoryId(anyInt(), anyInt(), anyInt(), anyString(), anyString())).thenThrow(ResourceNotFoundException.class);
 
         mockMvc.perform(get("/api/products/category/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -110,12 +113,12 @@ public class ProductControllerTest {
      * @throws Exception Exception
      */
     @Test
-    public void productController_getProductById_returnProductDto() throws Exception {
-        when(productService.getProductById(eq(1))).thenReturn(productDto);
+    void productController_getProductById_returnProductDto() throws Exception {
+        when(productService.getProductById(anyInt())).thenReturn(productDto);
 
         mockMvc.perform(get("/api/products/1"))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$..title").value("title"));
+                .andExpect(jsonPath("$..title").value("title"));
     }
 
     /**
@@ -123,8 +126,8 @@ public class ProductControllerTest {
      * @throws Exception Exception
      */
     @Test
-    public void productController_getProductById_returnNotFound() throws Exception {
-        when(productService.getProductById(eq(1))).thenThrow(ResourceNotFoundException.class);
+    void productController_getProductById_returnNotFound() throws Exception {
+        when(productService.getProductById(anyInt())).thenThrow(ResourceNotFoundException.class);
 
         mockMvc.perform(get("/api/products/1"))
                 .andExpect(status().isNotFound());
@@ -135,14 +138,14 @@ public class ProductControllerTest {
      * @throws Exception Exception
      */
     @Test
-    public void productController_createProduct_returnProductDto() throws Exception {
+    void productController_createProduct_returnProductDto() throws Exception {
         when(productService.createProduct(any(ProductDto.class))).thenReturn(productDto);
 
         mockMvc.perform(post("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(productDto)))
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value("title"));
+                .andExpect(jsonPath("$.title").value("title"));
     }
 
     /**
@@ -150,14 +153,14 @@ public class ProductControllerTest {
      * @throws Exception Exception
      */
     @Test
-    public void productController_updateProduct_returnProductDto() throws Exception {
+    void productController_updateProduct_returnProductDto() throws Exception {
         when(productService.updateProduct(any(ProductDto.class), anyInt())).thenReturn(productDto);
 
         mockMvc.perform(put("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsBytes(productDto)))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.title", CoreMatchers.is(productDto.getTitle())));
+                .andExpect(jsonPath("$.title", CoreMatchers.is(productDto.getTitle())));
     }
 
     /**
@@ -165,7 +168,7 @@ public class ProductControllerTest {
      * @throws Exception Exception
      */
     @Test
-    public void productController_updateProduct_returnNotFound() throws Exception {
+    void productController_updateProduct_returnNotFound() throws Exception {
         when(productService.updateProduct(any(ProductDto.class), anyInt())).thenThrow(ResourceNotFoundException.class);
 
         mockMvc.perform(put("/api/products/1")
@@ -179,7 +182,7 @@ public class ProductControllerTest {
      * @throws Exception Exception
      */
     @Test
-    public void productController_deleteProductById_returnVoid() throws Exception {
+    void productController_deleteProductById_returnVoid() throws Exception {
         doNothing().when(productService).deleteProductById(anyInt());
 
         mockMvc.perform(delete("/api/products/1"))
@@ -191,7 +194,7 @@ public class ProductControllerTest {
      * @throws Exception Exception
      */
     @Test
-    public void productController_deleteProductById_returnNotFound() throws Exception {
+    void productController_deleteProductById_returnNotFound() throws Exception {
         doThrow(ResourceNotFoundException.class).when(productService).deleteProductById(anyInt());
 
         mockMvc.perform(delete("/api/products/1")
