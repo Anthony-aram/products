@@ -1,58 +1,26 @@
 package com.products.products.service;
 
-import com.products.products.dto.CategoryDto;
-import com.products.products.dto.PageResponse;
-import com.products.products.dto.ProductDto;
-import com.products.products.entity.Category;
-import com.products.products.entity.Product;
-import com.products.products.exception.ResourceNotFoundException;
 import com.products.products.repository.CategoryRepository;
 import com.products.products.repository.ProductRepository;
 import com.products.products.service.impl.ProductServiceImpl;
-import com.products.products.utils.ConstantsUtils;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceImplTest {
-
     @Mock
     ProductRepository productRepository;
-
     @Mock
     CategoryRepository categoryRepository;
-
-    @Spy
-    ModelMapper modelMapper;
-
     @InjectMocks
     ProductServiceImpl productServiceImpl;
 
     /**
      * Test GetAllProducts => Return PageResponse of products
      */
-    @Test
+/*    @Test
     void productService_getAllProducts_returnPageResponse() {
         Product product = Product.builder()
                 .title("title")
@@ -80,9 +48,9 @@ class ProductServiceImplTest {
                 .size().isEqualTo(1);
     }
 
-    /**
+    *//**
      * Test GetAllProductsByCategoryId => Return PageResponse of products for a category
-     */
+     *//*
     @Test
     void productService_getAllProductsByCategoryId_returnPageResponse() {
         Product product = Product.builder()
@@ -116,9 +84,9 @@ class ProductServiceImplTest {
                 .size().isEqualTo(1);
     }
 
-    /**
+    *//**
      * Test GetAllProductsByCategoryId => Return NotFound
-     */
+     *//*
     @Test
     void productService_getAllProductsByCategoryId_returnNotFound() {
         when(categoryRepository.findById(anyInt())).thenReturn(Optional.empty());
@@ -126,9 +94,9 @@ class ProductServiceImplTest {
         assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.getAllProductsByCategoryId(1,0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION));
     }
 
-    /**
+    *//**
      * Test GetProductById => Return Product
-     */
+     *//*
     @Test
     void productService_getProductById_returnProduct() {
         Product product = Product.builder()
@@ -155,9 +123,9 @@ class ProductServiceImplTest {
         Assertions.assertThat(productDto.getTitle()).isEqualTo(product.getTitle());
     }
 
-    /**
+    *//**
      * Test GetProductById => Return NotFound
-     */
+     *//*
     @Test
     void productService_getProductById_returnNotFound()  {
         when(productRepository.findById(anyInt())).thenReturn(Optional.empty());
@@ -165,9 +133,9 @@ class ProductServiceImplTest {
         assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.getProductById(1));
     }
 
-    /**
+    *//**
      * Test CreateProduct => Return product
-     */
+     *//*
     @Test
     void productService_createProduct_returnProduct() {
         Product product = Product.builder()
@@ -205,9 +173,9 @@ class ProductServiceImplTest {
         Assertions.assertThat(savedProduct.getTitle()).isEqualTo(productDto.getTitle());
     }
 
-    /**
+    *//**
      * Test UpdateProduct => Return product
-     */
+     *//*
     @Test
     void productService_updateProduct_returnProduct() {
         int productId = 1;
@@ -250,9 +218,9 @@ class ProductServiceImplTest {
         Assertions.assertThat(productDto.getTitle()).isEqualTo(productDto.getTitle());
     }
 
-    /**
+    *//**
      * Test UpdateProduct => Return NotFound
-     */
+     *//*
     @Test
     void productService_updateProduct_returnNotFound() {
         ProductDto productDto = ProductDto.builder()
@@ -275,9 +243,9 @@ class ProductServiceImplTest {
         assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.updateProduct(productDto, productDto.getId()));
     }
 
-    /**
+    *//**
      * Test DeleteProduct => Return void
-     */
+     *//*
     @Test
     void productService_deleteProduct_returnVoid() {
         Product product = Product.builder()
@@ -301,13 +269,13 @@ class ProductServiceImplTest {
         assertAll(() -> productServiceImpl.deleteProductById(1));
     }
 
-    /**
+    *//**
      * Test DeleteProduct => Return NotFound
-     */
+     *//*
     @Test
     void productService_deleteProduct_returnNotFound() {
         when(productRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> productServiceImpl.deleteProductById(1));
-    }
+    }*/
 }

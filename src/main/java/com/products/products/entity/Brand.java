@@ -7,18 +7,18 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 @Entity
 @Table(
-        name = "Categories",
-        uniqueConstraints = { @UniqueConstraint(name = "UQ_Categories_Name", columnNames = { "name" }) }
+        name = "Brands",
+        uniqueConstraints = { @UniqueConstraint(name = "UQ_Brands_Name", columnNames = { "name" }) }
 )
-public class Category {
+public class Brand {
     @Id
     @GeneratedValue(
             strategy = GenerationType.IDENTITY

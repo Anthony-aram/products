@@ -22,11 +22,14 @@ public class ProductDto {
     private String description;
     @NotNull
     private Float price;
-    private Integer discountPercentage;
+    private Integer discount_percentage;
     @Min(0) @Max(5)
     private Float rating;
     private Integer stock;
+    private String thumbnail;
     private Set<String> images;
     @NotNull
-    private CategoryDto category;
+    private Integer category_id;
+    @NotNull
+    private Integer brand_id;
 }

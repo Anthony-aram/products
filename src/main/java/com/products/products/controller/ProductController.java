@@ -38,6 +38,11 @@ public class ProductController {
                             responseCode = "200",
                             content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
                     ),
+                    @ApiResponse(
+                            description = "Success - Partial content",
+                            responseCode = "206",
+                            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+                    ),
                     @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
             })
     public ResponseEntity<PageResponse<ProductDto>> getAllProducts(
@@ -46,7 +51,10 @@ public class ProductController {
             @RequestParam(value = "sortBy", defaultValue = ConstantsUtils.DEFAULT_SORT_BY, required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = ConstantsUtils.DEFAULT_SORT_DIRECTION, required = false) String sortDir
     ) {
-        return ResponseEntity.ok(productService.getAllProducts(pageNo, pageSize, sortBy, sortDir));
+        PageResponse<ProductDto> productDtoPageResponse = productService.getAllProducts(pageNo, pageSize, sortBy, sortDir);
+        return productDtoPageResponse.getContent().size() < productDtoPageResponse.getTotalElements()
+                ? new ResponseEntity<>(productDtoPageResponse, HttpStatus.PARTIAL_CONTENT)
+                : ResponseEntity.ok(productDtoPageResponse);
     }
 
     @GetMapping("/category/{id}")
@@ -58,6 +66,11 @@ public class ProductController {
                     @ApiResponse(
                             description = "Success",
                             responseCode = "200",
+                            content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+                    ),
+                    @ApiResponse(
+                            description = "Success - Partial content",
+                            responseCode = "206",
                             content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
                     ),
                     @ApiResponse(
@@ -74,7 +87,10 @@ public class ProductController {
             @RequestParam(value = "sortBy", defaultValue = ConstantsUtils.DEFAULT_SORT_BY, required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = ConstantsUtils.DEFAULT_SORT_DIRECTION, required = false) String sortDir
 ) {
-        return ResponseEntity.ok(productService.getAllProductsByCategoryId(categoryId, pageNo, pageSize, sortBy, sortDir));
+        PageResponse<ProductDto> productDtoPageResponse = productService.getAllProductsByCategoryId(categoryId, pageNo, pageSize, sortBy, sortDir);
+        return productDtoPageResponse.getContent().size() < productDtoPageResponse.getTotalElements()
+                ? new ResponseEntity<>(productDtoPageResponse, HttpStatus.PARTIAL_CONTENT)
+                : ResponseEntity.ok(productDtoPageResponse);
     }
 
     @GetMapping("/{id}")

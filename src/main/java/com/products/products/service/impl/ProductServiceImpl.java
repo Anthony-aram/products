@@ -2,13 +2,13 @@ package com.products.products.service.impl;
 
 import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
-import com.products.products.entity.Category;
 import com.products.products.entity.Product;
 import com.products.products.exception.ResourceNotFoundException;
+import com.products.products.mapper.ProductMapper;
 import com.products.products.repository.CategoryRepository;
 import com.products.products.repository.ProductRepository;
 import com.products.products.service.ProductService;
-import org.modelmapper.ModelMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,16 +19,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final ModelMapper modelMapper;
-
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, ModelMapper modelMapper) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-        this.modelMapper = modelMapper;
-    }
 
     /**
      * Get all products
@@ -47,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
 
         Page<Product> productPage = productRepository.findAll(pageable);
 
-        List<ProductDto> content = productPage.getContent().stream().map(this::mapToDto).collect(Collectors.toList());
+        List<ProductDto> content = productPage.getContent().stream().map(ProductMapper::mapToDto).collect(Collectors.toList());
 
         return new PageResponse<>(
                 content,
@@ -70,16 +64,18 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public PageResponse<ProductDto> getAllProductsByCategoryId(int categoryId, int pageNo, int pageSize, String sortBy, String sortDir) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category", "id", categoryId));
+        if(!categoryRepository.existsById(categoryId)) {
+            throw new ResourceNotFoundException("Category", "id", categoryId);
+        }
 
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         // Create pageable instance
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
-        Page<Product> productPage = productRepository.findByCategoryId(category.getId(), pageable);
+        Page<Product> productPage = productRepository.findByCategoryId(categoryId, pageable);
 
-        List<ProductDto> content = productPage.getContent().stream().map(this::mapToDto).collect(Collectors.toList());
+        List<ProductDto> content = productPage.getContent().stream().map(ProductMapper::mapToDto).collect(Collectors.toList());
 
         return new PageResponse<>(
                 content,
@@ -99,7 +95,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getProductById(int productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
-        return mapToDto(product);
+        return ProductMapper.mapToDto(product);
     }
 
     /**
@@ -109,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ProductDto createProduct(ProductDto productDto) {
-        return mapToDto(productRepository.save(mapToEntity(productDto)));
+        return ProductMapper.mapToDto(productRepository.save(ProductMapper.mapToEntity(productDto)));
     }
 
     /**
@@ -126,7 +122,7 @@ public class ProductServiceImpl implements ProductService {
         foundProduct.setDescription(productDto.getDescription());
         foundProduct.setPrice(productDto.getPrice());
 
-        return mapToDto(productRepository.save(foundProduct));
+        return ProductMapper.mapToDto(productRepository.save(foundProduct));
     }
 
     /**
@@ -137,23 +133,5 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProductById(int productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
         productRepository.delete(product);
-    }
-
-    /**
-     * Map a Product to a ProductDto
-     * @param product Product to map
-     * @return ProductDto
-     */
-    private ProductDto mapToDto(Product product) {
-        return modelMapper.map(product, ProductDto.class);
-    }
-
-    /**
-     * Map a ProductDto to Product
-     * @param productDto Product to map
-     * @return Product
-     */
-    private Product mapToEntity(ProductDto productDto) {
-        return modelMapper.map(productDto, Product.class);
     }
 }

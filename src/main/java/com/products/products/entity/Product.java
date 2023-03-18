@@ -40,6 +40,8 @@ public class Product {
     private Float rating;
     @Column(nullable = false)
     private Integer stock;
+    private String thumbnail;
+    @ElementCollection
     private Set<String> images;
     @CreationTimestamp
     private LocalDateTime dateCreated;
@@ -51,4 +53,11 @@ public class Product {
             referencedColumnName = "id",
             nullable = false)
     private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id",
+            foreignKey = @ForeignKey(name = "FK_Brands_Products"),
+            referencedColumnName = "id",
+            nullable = false)
+    private Brand brand;
 }
