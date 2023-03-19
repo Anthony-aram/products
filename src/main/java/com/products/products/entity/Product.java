@@ -28,7 +28,7 @@ public class Product {
     )
     private int id;
     @Column(nullable = false)
-    @Size(min = 3, max = 30, message = "Le titre doit être entre 3 et 30 caractères")
+    @Size(min = 3, max = 50, message = "Le titre doit être entre 3 et 50 caractères")
     private String title;
     @Column(nullable = false)
     @Size(min = 10, max = 1000)

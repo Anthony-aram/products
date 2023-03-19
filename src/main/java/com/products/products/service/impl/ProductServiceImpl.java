@@ -4,10 +4,13 @@ import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
 import com.products.products.entity.Product;
 import com.products.products.exception.ResourceNotFoundException;
-import com.products.products.mapper.ProductMapper;
+import com.products.products.mapper.BrandMapper;
+import com.products.products.mapper.CategoryMapper;
+import com.products.products.repository.BrandRepository;
 import com.products.products.repository.CategoryRepository;
 import com.products.products.repository.ProductRepository;
 import com.products.products.service.ProductService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final BrandRepository brandRepository;
 
     /**
      * Get all products
@@ -41,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
 
         Page<Product> productPage = productRepository.findAll(pageable);
 
-        List<ProductDto> content = productPage.getContent().stream().map(ProductMapper::mapToDto).collect(Collectors.toList());
+        List<ProductDto> content = productPage.getContent().stream().map(this::mapToDto).collect(Collectors.toList());
 
         return new PageResponse<>(
                 content,
@@ -75,7 +79,7 @@ public class ProductServiceImpl implements ProductService {
 
         Page<Product> productPage = productRepository.findByCategoryId(categoryId, pageable);
 
-        List<ProductDto> content = productPage.getContent().stream().map(ProductMapper::mapToDto).collect(Collectors.toList());
+        List<ProductDto> content = productPage.getContent().stream().map(this::mapToDto).collect(Collectors.toList());
 
         return new PageResponse<>(
                 content,
@@ -95,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getProductById(int productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
-        return ProductMapper.mapToDto(product);
+        return mapToDto(product);
     }
 
     /**
@@ -105,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ProductDto createProduct(ProductDto productDto) {
-        return ProductMapper.mapToDto(productRepository.save(ProductMapper.mapToEntity(productDto)));
+        return mapToDto(productRepository.save(mapToEntity(productDto)));
     }
 
     /**
@@ -115,6 +119,7 @@ public class ProductServiceImpl implements ProductService {
      * @return Updated product
      */
     @Override
+    @Transactional
     public ProductDto updateProduct(ProductDto productDto, int productId) {
         Product foundProduct = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
@@ -122,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
         foundProduct.setDescription(productDto.getDescription());
         foundProduct.setPrice(productDto.getPrice());
 
-        return ProductMapper.mapToDto(productRepository.save(foundProduct));
+        return mapToDto(productRepository.save(foundProduct));
     }
 
     /**
@@ -133,5 +138,49 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProductById(int productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
         productRepository.delete(product);
+    }
+
+    /**
+     * Map a Product to a ProductDto
+     * @param product Product to map
+     * @return ProductDto
+     */
+    private ProductDto mapToDto(Product product) {
+        return ProductDto.builder()
+                .id(product.getId())
+                .title(product.getTitle())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .discount_percentage(product.getDiscountPercentage())
+                .rating(product.getRating())
+                .stock(product.getStock())
+                .thumbnail(product.getThumbnail())
+                .images(product.getImages())
+                .category(CategoryMapper.mapToDto(product.getCategory()))
+                .category_id(product.getCategory().getId())
+                .brand(BrandMapper.mapToDto(product.getBrand()))
+                .brand_id(product.getBrand().getId())
+                .build();
+    }
+
+    /**
+     * Map a ProductDto to Product
+     * @param productDto Product to map
+     * @return Product
+     */
+    private Product mapToEntity(ProductDto productDto) {
+        return Product.builder()
+                .id(productDto.getId())
+                .title(productDto.getTitle())
+                .description(productDto.getDescription())
+                .price(productDto.getPrice())
+                .discountPercentage(productDto.getDiscount_percentage())
+                .rating(productDto.getRating())
+                .stock(productDto.getStock())
+                .thumbnail(productDto.getThumbnail())
+                .images(productDto.getImages())
+                .category(categoryRepository.getReferenceById(productDto.getCategory_id()))
+                .brand(brandRepository.getReferenceById(productDto.getBrand_id()))
+                .build();
     }
 }

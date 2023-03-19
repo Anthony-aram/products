@@ -15,7 +15,7 @@ import java.util.Set;
 public class ProductDto {
     private int id;
     @NotEmpty(message = "Title should not be null or empty")
-    @Size(min = 3, max = 30, message = "Le titre doit être entre 3 et 30 caractères")
+    @Size(min = 3, max = 50, message = "Le titre doit être entre 3 et 50 caractères")
     private String title;
     @NotEmpty(message = "Description should not be null or empty")
     @Size(min = 10, max = 1000)
@@ -30,6 +30,8 @@ public class ProductDto {
     private Set<String> images;
     @NotNull
     private Integer category_id;
+    private CategoryDto category;
     @NotNull
     private Integer brand_id;
+    private BrandDto brand;
 }

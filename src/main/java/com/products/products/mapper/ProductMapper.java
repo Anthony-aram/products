@@ -2,8 +2,14 @@ package com.products.products.mapper;
 
 import com.products.products.dto.ProductDto;
 import com.products.products.entity.Product;
+import com.products.products.repository.CategoryRepository;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class ProductMapper {
+
+    private final CategoryRepository categoryRepository;
+
     /**
      * Map a Product to a ProductDto
      * @param product Product to map
@@ -20,6 +26,8 @@ public class ProductMapper {
                 .stock(product.getStock())
                 .thumbnail(product.getThumbnail())
                 .images(product.getImages())
+                .category(CategoryMapper.mapToDto(product.getCategory()))
+                .brand(BrandMapper.mapToDto(product.getBrand()))
                 .build();
     }
 
@@ -39,6 +47,8 @@ public class ProductMapper {
                 .stock(productDto.getStock())
                 .thumbnail(productDto.getThumbnail())
                 .images(productDto.getImages())
+                .category(CategoryMapper.mapToEntity(productDto.getCategory()))
+                .brand(BrandMapper.mapToEntity(productDto.getBrand()))
                 .build();
     }
 }
