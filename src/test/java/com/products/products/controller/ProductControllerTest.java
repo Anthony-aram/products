@@ -1,7 +1,6 @@
 package com.products.products.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.products.products.config.JwtService;
 import com.products.products.dto.CategoryDto;
 import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
@@ -24,8 +23,6 @@ class ProductControllerTest {
     private ProductService productService;
     @Autowired
     private ObjectMapper objectMapper;
-    @MockBean
-    private JwtService jwtService;
     private CategoryDto categoryDto;
     private ProductDto productDto;
     private PageResponse<ProductDto> pageResponse;
