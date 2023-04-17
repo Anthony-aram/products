@@ -7,7 +7,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -18,7 +17,6 @@ public class DataSeeding implements CommandLineRunner {
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
     private final RoleRepository roleRepository;
-    private final UserRepository userRepository;
 
     @Override
     public void run(String... args) {
@@ -38,31 +36,6 @@ public class DataSeeding implements CommandLineRunner {
                     .build();
 
             roleRepository.saveAll(Arrays.asList(user, admin));
-        }
-
-        // Users
-        if(userRepository.count() == 0) {
-            User admin = User.builder()
-                    .id(1)
-                    .username("admin@gmail.com")
-                    .password("admin")
-                    .roles(Collections.singleton(Role.builder()
-                            .id(2)
-                            .name("ROLE_ADMIN")
-                            .build()))
-                    .build();
-
-            User user = User.builder()
-                    .id(2)
-                    .username("user@gmail.com")
-                    .password("user")
-                    .roles(Collections.singleton(Role.builder()
-                            .id(1)
-                            .name("ROLE_USER")
-                            .build()))
-                    .build();
-
-            userRepository.saveAll(Arrays.asList(admin, user));
         }
 
         // Brands
