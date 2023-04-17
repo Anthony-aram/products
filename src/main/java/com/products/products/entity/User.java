@@ -1,30 +1,34 @@
 package com.products.products.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 
+/**
+ * Représente un enregistrement de la table User
+ */
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "users")
+@Builder
+@Table(
+        name = "users",
+        uniqueConstraints = { @UniqueConstraint(name = "UQ_Users_Username", columnNames = { "username" }) }
+)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, updatable = false)
+    private Integer id;
+
+    @Column(nullable = false, updatable = false, length = 100)
     private String username;
-    @Column(nullable = false, unique = true)
-    private String email;
-    @Column(nullable = false)
+
+    @Column(nullable = false, length = 100)
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

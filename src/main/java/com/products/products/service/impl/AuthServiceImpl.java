@@ -21,9 +21,13 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Allows you to authenticate
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -33,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String login(LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginDto.getUsernameOrEmail(), loginDto.getPassword()));
+                loginDto.getUsername(), loginDto.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -42,22 +46,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String register(RegisterDto registerDto) {
-
-        // add check for username exists in database
-        if(userRepository.existsByUsername(registerDto.getUsername())){
-            throw new ProductAPIException(HttpStatus.BAD_REQUEST, "Username is already exists!.");
+        if(userRepository.existsByUsername(registerDto.getUsername())) {
+            throw new ProductAPIException(HttpStatus.BAD_REQUEST, "Username is already exists !");
         }
 
-        // add check for email exists in database
-        if(userRepository.existsByEmail(registerDto.getEmail())){
-            throw new ProductAPIException(HttpStatus.BAD_REQUEST, "Email is already exists!.");
-        }
-
-        User user = new User();
-        user.setName(registerDto.getName());
-        user.setUsername(registerDto.getUsername());
-        user.setEmail(registerDto.getEmail());
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        User user = User.builder()
+                .username(registerDto.getUsername())
+                .password(passwordEncoder.encode(registerDto.getPassword()))
+                .build();
 
         Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName("ROLE_USER").get();
@@ -66,6 +62,6 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        return "User registered successfully!.";
+        return "User registered successfully";
     }
 }

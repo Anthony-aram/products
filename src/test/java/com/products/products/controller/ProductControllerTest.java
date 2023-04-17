@@ -6,6 +6,7 @@ import com.products.products.dto.CategoryDto;
 import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
 import com.products.products.exception.ResourceNotFoundException;
+import com.products.products.security.JwtAuthenticationFilter;
 import com.products.products.service.ProductService;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,8 @@ class ProductControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private ProductService productService;
+    @MockBean
+    JwtAuthenticationFilter jwtAuthenticationFilter;
     @Autowired
     private ObjectMapper objectMapper;
     private CategoryDto categoryDto;
