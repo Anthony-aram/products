@@ -5,7 +5,6 @@ import com.products.products.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -42,8 +41,8 @@ public class SecurityConfig {
 
         http.csrf().disable()
                 .authorizeHttpRequests((authorize) ->
-                        authorize.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-                                .requestMatchers("/api/auth/**").permitAll()
+                               // authorize.requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        authorize.requestMatchers("/api/auth/**").permitAll()
                                 .anyRequest().authenticated()
 
                 ).exceptionHandling( exception -> exception

@@ -1,16 +1,13 @@
 package com.products.products.seed;
 
-import com.products.products.entity.Brand;
-import com.products.products.entity.Category;
-import com.products.products.entity.Product;
-import com.products.products.repository.BrandRepository;
-import com.products.products.repository.CategoryRepository;
-import com.products.products.repository.ProductRepository;
+import com.products.products.entity.*;
+import com.products.products.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -20,6 +17,8 @@ public class DataSeeding implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void run(String... args) {
@@ -27,9 +26,46 @@ public class DataSeeding implements CommandLineRunner {
     }
 
     private void loadData() {
-        /**
-         * Brands
-         */
+        // Roles
+        if(roleRepository.count() == 0) {
+            Role user = Role.builder()
+                    .id(1)
+                    .name("ROLE_USER")
+                    .build();
+            Role admin = Role.builder()
+                    .id(2)
+                    .name("ROLE_ADMIN")
+                    .build();
+
+            roleRepository.saveAll(Arrays.asList(user, admin));
+        }
+
+        // Users
+        if(userRepository.count() == 0) {
+            User admin = User.builder()
+                    .id(1)
+                    .username("admin@gmail.com")
+                    .password("admin")
+                    .roles(Collections.singleton(Role.builder()
+                            .id(2)
+                            .name("ROLE_ADMIN")
+                            .build()))
+                    .build();
+
+            User user = User.builder()
+                    .id(2)
+                    .username("user@gmail.com")
+                    .password("user")
+                    .roles(Collections.singleton(Role.builder()
+                            .id(1)
+                            .name("ROLE_USER")
+                            .build()))
+                    .build();
+
+            userRepository.saveAll(Arrays.asList(admin, user));
+        }
+
+        // Brands
         if (brandRepository.count() == 0) {
             Brand apple = Brand.builder()
                     .id(1)
@@ -147,9 +183,7 @@ public class DataSeeding implements CommandLineRunner {
                     luxury_palace, golden));
         }
 
-        /**
-         * Categories
-         */
+        // Categories
         if (categoryRepository.count() == 0) {
             Category smartphones = Category.builder()
                     .id(1)
@@ -179,9 +213,7 @@ public class DataSeeding implements CommandLineRunner {
             categoryRepository.saveAll(Arrays.asList(smartphones, fragrances, laptops, skincare, groceries, home_decoration));
         }
 
-        /**
-         * Products
-         */
+        // Products
         if (productRepository.count() == 0) {
             Product iphone_9 = Product.builder()
                     .id(1)

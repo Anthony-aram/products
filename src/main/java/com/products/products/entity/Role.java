@@ -1,10 +1,7 @@
 package com.products.products.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * Représente un enregistrement de la table Role
@@ -14,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(
         name = "roles",
         uniqueConstraints = { @UniqueConstraint(name = "UQ_Roles_Name", columnNames = { "name" }) })
