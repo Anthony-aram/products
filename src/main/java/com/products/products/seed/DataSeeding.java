@@ -16,7 +16,6 @@ public class DataSeeding implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
-    private final RoleRepository roleRepository;
 
     @Override
     public void run(String... args) {
@@ -24,20 +23,6 @@ public class DataSeeding implements CommandLineRunner {
     }
 
     private void loadData() {
-        // Roles
-        if(roleRepository.count() == 0) {
-            Role user = Role.builder()
-                    .id(1)
-                    .name("ROLE_USER")
-                    .build();
-            Role admin = Role.builder()
-                    .id(2)
-                    .name("ROLE_ADMIN")
-                    .build();
-
-            roleRepository.saveAll(Arrays.asList(user, admin));
-        }
-
         // Brands
         if (brandRepository.count() == 0) {
             Brand apple = Brand.builder()
