@@ -1,9 +1,9 @@
 package com.products.products.entity;
 
+import com.products.products.reference.EnumRole;
+import com.products.products.reference.EnumRoleConverter;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.Set;
 
 /**
  * Représente un enregistrement de la table User
@@ -31,10 +31,13 @@ public class User {
     @Column(nullable = false, length = 100)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+/*    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
-    private Set<Role> roles;
+    private Set<Role> roles;*/
+
+    @Convert(converter = EnumRoleConverter.class)
+    private EnumRole role;
 }

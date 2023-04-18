@@ -2,10 +2,9 @@ package com.products.products.service.impl;
 
 import com.products.products.dto.LoginDto;
 import com.products.products.dto.RegisterDto;
-import com.products.products.entity.Role;
 import com.products.products.entity.User;
 import com.products.products.exception.ProductAPIException;
-import com.products.products.repository.RoleRepository;
+import com.products.products.reference.EnumRole;
 import com.products.products.repository.UserRepository;
 import com.products.products.security.JwtTokenProvider;
 import com.products.products.service.AuthService;
@@ -18,9 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Allows you to authenticate
  */
@@ -30,7 +26,6 @@ public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -55,10 +50,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(registerDto.getPassword()))
                 .build();
 
-        Set<Role> roles = new HashSet<>();
-        Role userRole = roleRepository.findByName("ROLE_USER").get();
-        roles.add(userRole);
-        user.setRoles(roles);
+        user.setRole(EnumRole.ROLE_ADMIN);
 
         userRepository.save(user);
 

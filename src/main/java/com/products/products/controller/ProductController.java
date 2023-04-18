@@ -46,7 +46,7 @@ public class ProductController {
                     ),
                     @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
             })
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PageResponse<ProductDto>> getAllProducts(
             @RequestParam(value = "pageNo", defaultValue = ConstantsUtils.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = ConstantsUtils.DEFAULT_PAGE_SIZE, required = false) int pageSize,
