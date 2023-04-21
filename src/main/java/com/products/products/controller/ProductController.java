@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/products")
-@CrossOrigin(origins = "http://localhost:3000/", maxAge = 3600)
 @Tag(name = "Products", description = "Endpoints for managing products")
 public class ProductController {
     private final ProductService productService;
@@ -46,7 +45,7 @@ public class ProductController {
                     ),
                     @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
             })
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<PageResponse<ProductDto>> getAllProducts(
             @RequestParam(value = "pageNo", defaultValue = ConstantsUtils.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = ConstantsUtils.DEFAULT_PAGE_SIZE, required = false) int pageSize,

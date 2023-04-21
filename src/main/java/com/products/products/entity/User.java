@@ -1,7 +1,7 @@
 package com.products.products.entity;
 
-import com.products.products.reference.EnumRole;
-import com.products.products.reference.EnumRoleConverter;
+import com.products.products.reference.RoleConverter;
+import com.products.products.reference.RoleReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,13 +31,7 @@ public class User {
     @Column(nullable = false, length = 100)
     private String password;
 
-/*    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
-    )
-    private Set<Role> roles;*/
-
-    @Convert(converter = EnumRoleConverter.class)
-    private EnumRole role;
+    @Convert(converter = RoleConverter.class)
+    @Column(name = "role", nullable = false)
+    private RoleReference role;
 }
