@@ -76,7 +76,7 @@ class ProductControllerTest {
      */
     @Test
     void productController_getAllProducts_returnPageResponse() throws Exception {
-        when(productService.getAllProducts(anyInt(), anyInt(), anyString(), anyString())).thenReturn(pageResponse);
+        when(productService.getAllProducts(anyInt(), anyInt(), anyString(), anyString(), anyString(), anyString(), anyInt(), anyInt())).thenReturn(pageResponse);
 
         mockMvc.perform(get("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/products")
 @Tag(name = "Products", description = "Endpoints for managing products")
@@ -50,9 +52,13 @@ public class ProductController {
             @RequestParam(value = "pageNo", defaultValue = ConstantsUtils.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = ConstantsUtils.DEFAULT_PAGE_SIZE, required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = ConstantsUtils.DEFAULT_SORT_BY, required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = ConstantsUtils.DEFAULT_SORT_DIRECTION, required = false) String sortDir
+            @RequestParam(value = "sortDir", defaultValue = ConstantsUtils.DEFAULT_SORT_DIRECTION, required = false) String sortDir,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "min_price", required = false) Integer minPrice,
+            @RequestParam(value = "max_price", required = false) Integer maxPrice
     ) {
-        PageResponse<ProductDto> productDtoPageResponse = productService.getAllProducts(pageNo, pageSize, sortBy, sortDir);
+        PageResponse<ProductDto> productDtoPageResponse = productService.getAllProducts(pageNo, pageSize, sortBy, sortDir, title, description, minPrice, maxPrice);
         return productDtoPageResponse.getContent().size() < productDtoPageResponse.getTotalElements()
                 ? new ResponseEntity<>(productDtoPageResponse, HttpStatus.PARTIAL_CONTENT)
                 : ResponseEntity.ok(productDtoPageResponse);
@@ -165,4 +171,23 @@ public class ProductController {
         productService.deleteProductById(productId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/filter")
+    @Operation(
+            summary = "Get a product by title",
+            description = "Get a product by title",
+            tags = {"Products"},
+            responses = {
+                    @ApiResponse(
+                            description = "Success",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json", schema =@Schema(implementation = ProductDto.class))
+                    ),
+                    @ApiResponse(description = "Not found", responseCode = "404", content = @Content),
+                    @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
+            })
+    public ResponseEntity<List<ProductDto>> getProductsByTitle(@RequestParam(value = "title") String title) {
+        return ResponseEntity.ok(productService.getProductsByTitle(title));
+    }
+
 }

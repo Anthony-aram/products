@@ -4,12 +4,14 @@ import com.products.products.dto.PageResponse;
 import com.products.products.dto.ProductDto;
 import com.products.products.entity.Product;
 import com.products.products.exception.ResourceNotFoundException;
-import com.products.products.mapper.BrandMapper;
-import com.products.products.mapper.CategoryMapper;
-import com.products.products.repository.BrandRepository;
+import com.products.products.mapper.ProductMapper;
 import com.products.products.repository.CategoryRepository;
 import com.products.products.repository.ProductRepository;
 import com.products.products.service.ProductService;
+import com.products.products.specification.GenericSpecification;
+import com.products.products.specification.SearchCriteria;
+import com.products.products.specification.SearchOperation;
+import com.products.products.specification.metaModel.Product_;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +29,6 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final BrandRepository brandRepository;
 
     /**
      * Get all products
@@ -37,15 +39,17 @@ public class ProductServiceImpl implements ProductService {
      * @return PageResponse of products
      */
     @Override
-    public PageResponse<ProductDto> getAllProducts(int pageNo, int pageSize, String sortBy, String sortDir) {
+    public PageResponse<ProductDto> getAllProducts(int pageNo, int pageSize, String sortBy, String sortDir, String title, String description, Integer minPrice, Integer maxPrice) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         // Create pageable instance
         Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
 
-        Page<Product> productPage = productRepository.findAll(pageable);
+        GenericSpecification<Product> productSpecification = buildSpecification(title, description, minPrice, maxPrice);
 
-        List<ProductDto> content = productPage.getContent().stream().map(this::mapToDto).collect(Collectors.toList());
+        Page<Product> productPage = productRepository.findAll(productSpecification, pageable);
+
+        List<ProductDto> content = productPage.getContent().stream().map(ProductMapper::mapToDto).collect(Collectors.toList());
 
         return new PageResponse<>(
                 content,
@@ -55,6 +59,32 @@ public class ProductServiceImpl implements ProductService {
                 productPage.getTotalPages(),
                 productPage.isLast()
         );
+    }
+
+    /**
+     * Construit une spécification
+     * @param title Titre
+     * @param description Description
+     * @return La spécification
+     */
+    private GenericSpecification<Product> buildSpecification(String title, String description, Integer minPrice, Integer maxPrice) {
+        GenericSpecification<Product> productSpecification = new GenericSpecification<>();
+        // Title
+        if(StringUtils.hasLength(title)) {
+            productSpecification.add(new SearchCriteria(Product_.TITLE, SearchOperation.LIKE, title));
+        }
+        // Description
+        if(StringUtils.hasLength(description)) {
+            productSpecification.add(new SearchCriteria(Product_.DESCRIPTION, SearchOperation.LIKE, description));
+        }
+        if(minPrice != null) {
+            productSpecification.add(new SearchCriteria(Product_.PRICE, SearchOperation.GREATER_THAN_EQUAL, minPrice));
+        }
+        if(maxPrice != null) {
+            productSpecification.add(new SearchCriteria(Product_.PRICE, SearchOperation.LESS_THAN_EQUAL, maxPrice));
+        }
+
+        return productSpecification;
     }
 
     /**
@@ -69,7 +99,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public PageResponse<ProductDto> getAllProductsByCategoryId(int categoryId, int pageNo, int pageSize, String sortBy, String sortDir) {
         if(!categoryRepository.existsById(categoryId)) {
-            throw new ResourceNotFoundException("Category", "id", categoryId);
+            throw new ResourceNotFoundException("Category", "id", String.valueOf(categoryId));
         }
 
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -79,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
 
         Page<Product> productPage = productRepository.findByCategoryId(categoryId, pageable);
 
-        List<ProductDto> content = productPage.getContent().stream().map(this::mapToDto).collect(Collectors.toList());
+        List<ProductDto> content = productPage.getContent().stream().map(ProductMapper::mapToDto).collect(Collectors.toList());
 
         return new PageResponse<>(
                 content,
@@ -92,14 +122,27 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
+     * Récupère un produit par son titre
+     * @param title Titre
+     * @return Le produit
+     */
+    @Override
+    public List<ProductDto> getProductsByTitle(String title) {
+        return productRepository.findByTitleContaining(title)
+                .stream()
+                .map(ProductMapper::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Get a product by id
      * @param productId Product id
      * @return Found product
      */
     @Override
     public ProductDto getProductById(int productId) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
-        return mapToDto(product);
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", String.valueOf(productId)));
+        return ProductMapper.mapToDto(product);
     }
 
     /**
@@ -109,7 +152,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ProductDto createProduct(ProductDto productDto) {
-        return mapToDto(productRepository.save(mapToEntity(productDto)));
+        return ProductMapper.mapToDto(productRepository.save(ProductMapper.mapToEntity(productDto)));
     }
 
     /**
@@ -121,13 +164,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductDto updateProduct(ProductDto productDto, int productId) {
-        Product foundProduct = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
+        Product foundProduct = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", String.valueOf(productId)));
 
         foundProduct.setTitle(productDto.getTitle());
         foundProduct.setDescription(productDto.getDescription());
         foundProduct.setPrice(productDto.getPrice());
 
-        return mapToDto(productRepository.save(foundProduct));
+        return ProductMapper.mapToDto(productRepository.save(foundProduct));
     }
 
     /**
@@ -136,51 +179,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public void deleteProductById(int productId) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", String.valueOf(productId)));
         productRepository.delete(product);
-    }
-
-    /**
-     * Map a Product to a ProductDto
-     * @param product Product to map
-     * @return ProductDto
-     */
-    private ProductDto mapToDto(Product product) {
-        return ProductDto.builder()
-                .id(product.getId())
-                .title(product.getTitle())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .discount_percentage(product.getDiscountPercentage())
-                .rating(product.getRating())
-                .stock(product.getStock())
-                .thumbnail(product.getThumbnail())
-                .images(product.getImages())
-                .category(CategoryMapper.mapToDto(product.getCategory()))
-                .category_id(product.getCategory().getId())
-                .brand(BrandMapper.mapToDto(product.getBrand()))
-                .brand_id(product.getBrand().getId())
-                .build();
-    }
-
-    /**
-     * Map a ProductDto to Product
-     * @param productDto Product to map
-     * @return Product
-     */
-    private Product mapToEntity(ProductDto productDto) {
-        return Product.builder()
-                .id(productDto.getId())
-                .title(productDto.getTitle())
-                .description(productDto.getDescription())
-                .price(productDto.getPrice())
-                .discountPercentage(productDto.getDiscount_percentage())
-                .rating(productDto.getRating())
-                .stock(productDto.getStock())
-                .thumbnail(productDto.getThumbnail())
-                .images(productDto.getImages())
-                .category(categoryRepository.getReferenceById(productDto.getCategory_id()))
-                .brand(brandRepository.getReferenceById(productDto.getBrand_id()))
-                .build();
     }
 }
