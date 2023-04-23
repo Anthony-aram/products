@@ -1,4 +1,4 @@
-package com.products.products.specification;
+package com.products.products.specification.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

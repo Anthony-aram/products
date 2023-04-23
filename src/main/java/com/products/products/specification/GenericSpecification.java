@@ -1,5 +1,7 @@
 package com.products.products.specification;
 
+import com.products.products.specification.utils.SearchCriteria;
+import com.products.products.specification.utils.SearchOperation;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;

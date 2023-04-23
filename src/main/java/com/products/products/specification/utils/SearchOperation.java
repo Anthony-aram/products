@@ -1,4 +1,4 @@
-package com.products.products.specification;
+package com.products.products.specification.utils;
 
 public enum SearchOperation {
     EQUAL,
