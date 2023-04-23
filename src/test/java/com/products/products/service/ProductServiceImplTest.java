@@ -12,6 +12,7 @@ import com.products.products.repository.BrandRepository;
 import com.products.products.repository.CategoryRepository;
 import com.products.products.repository.ProductRepository;
 import com.products.products.service.impl.ProductServiceImpl;
+import com.products.products.specification.GenericSpecification;
 import com.products.products.utils.ConstantsUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -71,9 +72,9 @@ class ProductServiceImplTest {
         Pageable pageable = PageRequest.of(1, 10);
         Page<Product> productPage = new PageImpl<>(List.of(product), pageable, 1);
 
-        when(productRepository.findAll(Mockito.any(Pageable.class))).thenReturn(productPage);
+        when(productRepository.findAll(Mockito.any(GenericSpecification.class), Mockito.any(Pageable.class))).thenReturn(productPage);
 
-        PageResponse<ProductDto> productDtoList = productServiceImpl.getAllProducts(0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION, "title", "description", 1, 2);
+        PageResponse<ProductDto> productDtoList = productServiceImpl.getAllProducts(0, 10, ConstantsUtils.DEFAULT_SORT_BY, ConstantsUtils.DEFAULT_SORT_DIRECTION, null, null, null, null);
 
         Assertions.assertThat(productDtoList).isNotNull();
         Assertions.assertThat(productDtoList.getContent())
