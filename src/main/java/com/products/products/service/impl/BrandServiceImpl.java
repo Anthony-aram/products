@@ -13,7 +13,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class BrandServiceImpl implements BrandService {
+
     private final BrandRepository brandRepository;
+    private final BrandMapper brandMapper;
 
     /**
      * Get all brands
@@ -21,6 +23,6 @@ public class BrandServiceImpl implements BrandService {
      */
     @Override
     public List<BrandDto> getAllBrands() {
-        return brandRepository.findAll().stream().map(BrandMapper::mapToDto).collect(Collectors.toList());
+        return brandRepository.findAll().stream().map(brandMapper::mapToDto).collect(Collectors.toList());
     }
 }

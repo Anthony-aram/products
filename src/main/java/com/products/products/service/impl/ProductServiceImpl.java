@@ -27,8 +27,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
+
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductMapper productMapper;
 
     /**
      * Get all products
@@ -49,7 +51,7 @@ public class ProductServiceImpl implements ProductService {
 
         Page<Product> productPage = productRepository.findAll(productSpecification, pageable);
 
-        List<ProductDto> content = productPage.getContent().stream().map(ProductMapper::mapToDto).collect(Collectors.toList());
+        List<ProductDto> content = productPage.getContent().stream().map(productMapper::mapToDto).collect(Collectors.toList());
 
         return new PageResponse<>(
                 content,
@@ -109,7 +111,7 @@ public class ProductServiceImpl implements ProductService {
 
         Page<Product> productPage = productRepository.findByCategoryId(categoryId, pageable);
 
-        List<ProductDto> content = productPage.getContent().stream().map(ProductMapper::mapToDto).collect(Collectors.toList());
+        List<ProductDto> content = productPage.getContent().stream().map(productMapper::mapToDto).collect(Collectors.toList());
 
         return new PageResponse<>(
                 content,
@@ -130,7 +132,7 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductDto> getProductsByTitle(String title) {
         return productRepository.findByTitleContaining(title)
                 .stream()
-                .map(ProductMapper::mapToDto)
+                .map(productMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -142,7 +144,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getProductById(int productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", String.valueOf(productId)));
-        return ProductMapper.mapToDto(product);
+        return productMapper.mapToDto(product);
     }
 
     /**
@@ -152,7 +154,7 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ProductDto createProduct(ProductDto productDto) {
-        return ProductMapper.mapToDto(productRepository.save(ProductMapper.mapToEntity(productDto)));
+        return productMapper.mapToDto(productRepository.save(productMapper.mapToEntity(productDto)));
     }
 
     /**
@@ -170,7 +172,7 @@ public class ProductServiceImpl implements ProductService {
         foundProduct.setDescription(productDto.getDescription());
         foundProduct.setPrice(productDto.getPrice());
 
-        return ProductMapper.mapToDto(productRepository.save(foundProduct));
+        return productMapper.mapToDto(productRepository.save(foundProduct));
     }
 
     /**

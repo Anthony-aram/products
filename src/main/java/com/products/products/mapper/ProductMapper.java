@@ -2,20 +2,26 @@ package com.products.products.mapper;
 
 import com.products.products.dto.ProductDto;
 import com.products.products.entity.Product;
-import com.products.products.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+/**
+ * Mapper pour les produits
+ */
 @RequiredArgsConstructor
-public class ProductMapper {
+@Service
+public class ProductMapper implements Mapper<Product, ProductDto> {
 
-    private final CategoryRepository categoryRepository;
+    private final BrandMapper brandMapper;
+    private final CategoryMapper categoryMapper;
 
     /**
      * Map a Product to a ProductDto
      * @param product Product to map
      * @return ProductDto
      */
-    public static ProductDto mapToDto(Product product) {
+    @Override
+    public ProductDto mapToDto(Product product) {
         return ProductDto.builder()
                 .id(product.getId())
                 .title(product.getTitle())
@@ -26,8 +32,8 @@ public class ProductMapper {
                 .stock(product.getStock())
                 .thumbnail(product.getThumbnail())
                 .images(product.getImages())
-                .category(CategoryMapper.mapToDto(product.getCategory()))
-                .brand(BrandMapper.mapToDto(product.getBrand()))
+                .category(categoryMapper.mapToDto(product.getCategory()))
+                .brand(brandMapper.mapToDto(product.getBrand()))
                 .build();
     }
 
@@ -36,7 +42,8 @@ public class ProductMapper {
      * @param productDto Product to map
      * @return Product
      */
-    public static Product mapToEntity(ProductDto productDto) {
+    @Override
+    public Product mapToEntity(ProductDto productDto) {
         return Product.builder()
                 .id(productDto.getId())
                 .title(productDto.getTitle())
@@ -47,8 +54,8 @@ public class ProductMapper {
                 .stock(productDto.getStock())
                 .thumbnail(productDto.getThumbnail())
                 .images(productDto.getImages())
-                .category(CategoryMapper.mapToEntity(productDto.getCategory()))
-                .brand(BrandMapper.mapToEntity(productDto.getBrand()))
+                .category(categoryMapper.mapToEntity(productDto.getCategory()))
+                .brand(brandMapper.mapToEntity(productDto.getBrand()))
                 .build();
     }
 }

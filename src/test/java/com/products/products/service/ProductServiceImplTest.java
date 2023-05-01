@@ -8,7 +8,7 @@ import com.products.products.entity.Brand;
 import com.products.products.entity.Category;
 import com.products.products.entity.Product;
 import com.products.products.exception.ResourceNotFoundException;
-import com.products.products.repository.BrandRepository;
+import com.products.products.mapper.ProductMapper;
 import com.products.products.repository.CategoryRepository;
 import com.products.products.repository.ProductRepository;
 import com.products.products.service.impl.ProductServiceImpl;
@@ -44,7 +44,7 @@ class ProductServiceImplTest {
     @Mock
     CategoryRepository categoryRepository;
     @Mock
-    BrandRepository brandRepository;
+    ProductMapper productMapper;
     @InjectMocks
     ProductServiceImpl productServiceImpl;
 
@@ -151,13 +151,31 @@ class ProductServiceImplTest {
                         .build())
                 .build();
 
+        ProductDto productDto = ProductDto.builder()
+                .title("title")
+                .description("description")
+                .price(1F)
+                .discount_percentage(10)
+                .rating(1F)
+                .stock(1)
+                .category(CategoryDto.builder()
+                        .id(1)
+                        .name("category")
+                        .build())
+                .brand(BrandDto.builder()
+                        .id(1)
+                        .name("brand")
+                        .build())
+                .build();
+
         when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
+        when(productMapper.mapToDto(any(Product.class))).thenReturn(productDto);
 
-        ProductDto productDto = productServiceImpl.getProductById(1);
+        ProductDto foundProductDto = productServiceImpl.getProductById(1);
 
-        Assertions.assertThat(productDto).isNotNull();
-        Assertions.assertThat(productDto).isInstanceOf(ProductDto.class);
-        Assertions.assertThat(productDto.getTitle()).isEqualTo(product.getTitle());
+        Assertions.assertThat(foundProductDto).isNotNull();
+        Assertions.assertThat(foundProductDto).isInstanceOf(ProductDto.class);
+        Assertions.assertThat(foundProductDto.getTitle()).isEqualTo(product.getTitle());
     }
 
     /**
@@ -209,7 +227,11 @@ class ProductServiceImplTest {
                         .build())
                 .build();
 
+        when(productMapper.mapToEntity(any(ProductDto.class))).thenReturn(product);
         when(productRepository.save(Mockito.any(Product.class))).thenReturn(product);
+        when(productMapper.mapToDto(any(Product.class))).thenReturn(productDto);
+
+
         ProductDto savedProduct = productServiceImpl.createProduct(productDto);
 
         Assertions.assertThat(savedProduct).isNotNull();
@@ -260,11 +282,12 @@ class ProductServiceImplTest {
 
         when(productRepository.findById(anyInt())).thenReturn(Optional.ofNullable(product));
         when(productRepository.save(any(Product.class))).thenReturn(product);
+        when(productMapper.mapToDto(any(Product.class))).thenReturn(productDto);
 
         ProductDto updatedProduct = productServiceImpl.updateProduct(productDto, productId);
 
         Assertions.assertThat(updatedProduct).isNotNull();
-        Assertions.assertThat(productDto.getTitle()).isEqualTo(productDto.getTitle());
+        Assertions.assertThat(productDto.getTitle()).isEqualTo(updatedProduct.getTitle());
     }
 
     /**

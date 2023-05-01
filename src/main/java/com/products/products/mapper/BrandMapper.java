@@ -2,14 +2,20 @@ package com.products.products.mapper;
 
 import com.products.products.dto.BrandDto;
 import com.products.products.entity.Brand;
+import org.springframework.stereotype.Service;
 
-public class BrandMapper {
+/**
+ * Mapper pour les marques
+ */
+@Service
+public class BrandMapper implements Mapper<Brand, BrandDto> {
     /**
      * Map a Brand to a BrandDto
      * @param brand Brand to map
      * @return BrandDto
      */
-    public static BrandDto mapToDto(Brand brand) {
+    @Override
+    public BrandDto mapToDto(Brand brand) {
         return BrandDto.builder()
                 .id(brand.getId())
                 .name(brand.getName())
@@ -21,7 +27,8 @@ public class BrandMapper {
      * @param brandDto Brand to map
      * @return BrandDto
      */
-    public static Brand mapToEntity(BrandDto brandDto) {
+    @Override
+    public Brand mapToEntity(BrandDto brandDto) {
         return Brand.builder()
                 .id(brandDto.getId())
                 .name(brandDto.getName())
