@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,7 +46,7 @@ public class ProductController {
                     ),
                     @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content)
             })
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    // @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<PageResponse<ProductDto>> getAllProducts(
             @RequestParam(value = "pageNo", defaultValue = ConstantsUtils.DEFAULT_PAGE_NUMBER, required = false) int pageNo,
             @RequestParam(value = "pageSize", defaultValue = ConstantsUtils.DEFAULT_PAGE_SIZE, required = false) int pageSize,

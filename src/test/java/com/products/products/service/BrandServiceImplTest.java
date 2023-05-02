@@ -2,8 +2,10 @@ package com.products.products.service;
 
 import com.products.products.dto.BrandDto;
 import com.products.products.entity.Brand;
+import com.products.products.mapper.BrandMapper;
 import com.products.products.repository.BrandRepository;
 import com.products.products.service.impl.BrandServiceImpl;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,7 +22,8 @@ public class BrandServiceImplTest {
 
     @Mock
     BrandRepository brandRepository;
-
+    @Mock
+    BrandMapper brandMapper;
     @InjectMocks
     BrandServiceImpl brandService;
 
@@ -39,5 +42,10 @@ public class BrandServiceImplTest {
         when(brandRepository.findAll()).thenReturn(Collections.singletonList(brand));
 
         List<BrandDto> brandDtoList = brandService.getAllBrands();
+
+        Assertions.assertThat(brandDtoList).isNotNull();
+        Assertions.assertThat(brandDtoList)
+                .isNotEmpty()
+                .size().isEqualTo(1);
     }
 }
