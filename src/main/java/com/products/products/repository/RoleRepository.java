@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 /**
- * Repository pour la table roles
+ * Repository pour les rôles
  */
 public interface RoleRepository extends JpaRepository<Role, String> {
 

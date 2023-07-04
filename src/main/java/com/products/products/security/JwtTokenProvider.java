@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 
+/**
+ * Service pour la gestion des tokens JWT
+ */
 @Component
 public class JwtTokenProvider {
 
@@ -22,9 +25,9 @@ public class JwtTokenProvider {
     private long jwtExpirationDate;
 
     /**
-     * Generate jwt token
-     * @param authentication Authentication
-     * @return Created token
+     * Génère un token JWT
+     * @param authentication Authentification
+     * @return Token JWT
      */
     public String generateToken(Authentication authentication){
         String username = authentication.getName();
@@ -41,8 +44,8 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Decode key
-     * @return Key
+     * Récupère la clé secrète
+     * @return Clé secrète
      */
     private Key key(){
         return Keys.hmacShaKeyFor(
@@ -51,9 +54,9 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Get username from jwt token
+     * Récupère le nom d'utilisateur à partir du token
      * @param token Token
-     * @return Decoded username
+     * @return Nom d'utilisateur
      */
     public String getUsername(String token) {
         Claims claims = Jwts.parserBuilder()
@@ -66,9 +69,9 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Validate token
+     * Vérifie si le token est valide
      * @param token Token
-     * @return True if token is valid, false instead
+     * @return Vrai si le token est valide
      */
     public boolean validateToken(String token) {
         try {
@@ -87,6 +90,5 @@ public class JwtTokenProvider {
         }catch (IllegalArgumentException ex) {
             throw new ProductAPIException(HttpStatus.BAD_REQUEST, "JWT claims string is empty");
         }
-
     }
 }

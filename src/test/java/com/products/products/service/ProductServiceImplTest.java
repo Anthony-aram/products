@@ -36,6 +36,9 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+/**
+ * Classe de test pour le service ProductService
+ */
 @ExtendWith(MockitoExtension.class)
 class ProductServiceImplTest {
 

@@ -27,10 +27,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Classe de test pour le controller ProductController
+ */
 @WebMvcTest(controllers = ProductController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
 class ProductControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
     @MockBean
@@ -44,6 +48,9 @@ class ProductControllerTest {
     private ProductDto productDto;
     private PageResponse<ProductDto> pageResponse;
 
+    /**
+     * Initialisation des données de test
+     */
     @BeforeEach
     void init() {
         categoryDto = CategoryDto.builder()

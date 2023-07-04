@@ -6,20 +6,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 /**
- * User repository
+ * Repository pour les utilisateurs
  */
 public interface UserRepository extends JpaRepository<User, Long> {
     /**
-     * Find a user by username
-     * @param username Username
-     * @return Found user
+     * Récupère un utilisateur par son username
+     * @param username Nom d'utilisateur
+     * @return L'utilisateur
      */
     Optional<User> findByUsername(String username);
 
     /**
-     * Check if a user exists
-     * @param username Username
-     * @return True if the user exists, otherwise false
+     * Vérifie si un utilisateur existe par son username
+     * @param username Nom d'utilisateur
+     * @return Vrai si l'utilisateur existe
      */
     Boolean existsByUsername(String username);
 }

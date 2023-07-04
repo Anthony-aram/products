@@ -10,9 +10,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * Classe pour l'initialisation des données
+ */
 @Component
 @RequiredArgsConstructor
 public class DataSeeding implements CommandLineRunner {
+
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final BrandRepository brandRepository;
@@ -23,6 +27,9 @@ public class DataSeeding implements CommandLineRunner {
         loadData();
     }
 
+    /**
+     * Chargement des données
+     */
     private void loadData() {
         // Roles
         if(roleRepository.count() == 0) {

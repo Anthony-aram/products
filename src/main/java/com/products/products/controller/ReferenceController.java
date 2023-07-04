@@ -16,8 +16,8 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("api/references")
-@Tag(name = "References", description = "Endpoints for managing references")
 @RequiredArgsConstructor
+@Tag(name = "References", description = "Endpoints for managing references")
 public class ReferenceController {
 
     private final ReferenceService referenceService;

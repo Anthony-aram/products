@@ -17,6 +17,9 @@ import java.util.List;
 
 import static org.mockito.Mockito.when;
 
+/**
+ * Classe de test pour le service BrandService
+ */
 @ExtendWith(MockitoExtension.class)
 public class BrandServiceImplTest {
 
@@ -27,6 +30,9 @@ public class BrandServiceImplTest {
     @InjectMocks
     BrandServiceImpl brandService;
 
+    /**
+     * Test de la méthode getAllBrands
+     */
     @Test
     void brandService_getAllBrand_returnAllBrand() {
         Brand brand = Brand.builder()

@@ -6,7 +6,7 @@ import com.products.products.reference.RoleReference;
 import java.util.List;
 
 /**
- * Permet de récupérer les références en base
+ * Service pour les références
  */
 public interface ReferenceService {
 

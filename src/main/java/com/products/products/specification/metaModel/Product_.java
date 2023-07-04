@@ -4,6 +4,9 @@ import com.products.products.entity.Product;
 import jakarta.persistence.metamodel.SingularAttribute;
 import jakarta.persistence.metamodel.StaticMetamodel;
 
+/**
+ * MetaModel de la classe Product
+ */
 @StaticMetamodel(Product.class)
 public abstract class Product_ {
     public static volatile SingularAttribute<Product, String> title;
@@ -17,6 +20,9 @@ public abstract class Product_ {
     public static final String DISCOUNT_PERCENTAGE = "discountPercentage";
     public static final String RATING = "rating";
 
+    /**
+     * Constructeur privé
+     */
     public Product_() {
     }
 }

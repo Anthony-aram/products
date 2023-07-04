@@ -22,7 +22,12 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    // Not found exception
+    /**
+     * Ressource non trouvée
+     * @param exception Exception
+     * @param webRequest Request
+     * @return 404 NOT FOUND
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorDetails> handleResourceNotFoundException(ResourceNotFoundException exception,
                                                                         WebRequest webRequest){
@@ -35,7 +40,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Exception générique
      * @param exception Exception
      * @param webRequest Request
-     * @return ResponseEntity
+     * @return 400 BAD REQUEST
      */
     @ExceptionHandler(ProductAPIException.class)
     public ResponseEntity<ErrorDetails> handleBlogAPIException(ProductAPIException exception,
@@ -46,7 +51,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handling global exceptions
+     * Gestion globale des exceptions
      * @param exception Exception
      * @param webRequest Request
      * @return Exception
@@ -60,12 +65,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handling handleMethodArgumentNotValid
+     * Gestion des exceptions de validation
      * @param ex Exception
      * @param headers Headers
      * @param status Status
      * @param request Request
-     * @return ResponseEntity of errors
+     * @return 400 BAD REQUEST
      */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -87,10 +92,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handling AccessDeniedException
+     * Gestion des exceptions d'accès
      * @param exception Exception
      * @param webRequest Request
-     * @return 401 unauthorized
+     * @return 401 UNAUTHORIZED
      */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorDetails> handleAccessDeniedException(AccessDeniedException exception,

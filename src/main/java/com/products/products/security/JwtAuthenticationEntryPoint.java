@@ -1,6 +1,5 @@
 package com.products.products.security;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
@@ -9,10 +8,18 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * Gestion des exceptions d'authentification
+ */
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
     /**
-     * Handle exceptions due to unauthorized user that try to access a resource that need authentication
+     * Gestion des exceptions d'authentification
+     * @param request Requête
+     * @param response Réponse
+     * @param authException Exception d'authentification
+     * @throws IOException Exception d'entrée/sortie
      */
     @Override
     public void commence(HttpServletRequest request,

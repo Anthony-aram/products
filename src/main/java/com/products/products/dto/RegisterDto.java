@@ -5,11 +5,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO représentant une authentification
+ */
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterDto {
+
+    /**
+     * Nom d'utilisateur
+     */
     private String username;
+
+    /**
+     * Mot de passe
+     */
     private String password;
 }

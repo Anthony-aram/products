@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * Service pour la gestion des utilisateurs
+ */
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
@@ -20,10 +23,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     /**
-     * Try to get username
-     * @param username Username
-     * @return UserDetails
-     * @throws UsernameNotFoundException Exception
+     * Récupère un utilisateur par son username
+     * @param username Nom d'utilisateur
+     * @return L'utilisateur
+     * @throws UsernameNotFoundException Exception si l'utilisateur n'est pas trouvé
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

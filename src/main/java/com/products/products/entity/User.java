@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * Représente un enregistrement de la table User
+ * Entité représentant un utilisateur
  */
 @Setter
 @Getter
@@ -20,17 +20,29 @@ import lombok.*;
 )
 public class User {
 
+    /**
+     * Identifiant de l'utilisateur
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
     private Integer id;
 
+    /**
+     * Nom d'utilisateur
+     */
     @Column(nullable = false, updatable = false, length = 100)
     private String username;
 
+    /**
+     * Mot de passe
+     */
     @Column(nullable = false, length = 100)
     private String password;
 
+    /**
+     * Rôle de l'utilisateur
+     */
     @Convert(converter = RoleConverter.class)
     @Column(name = "role", nullable = false)
     private RoleReference role;

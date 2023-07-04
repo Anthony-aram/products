@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,16 +16,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Contrôleur gérant les catégories
+ */
 @RestController
 @RequestMapping("api/categories")
+@RequiredArgsConstructor
 @Tag(name = "Categories", description = "Endpoints for managing categories")
 public class CategoryController {
+
     private final CategoryService categoryService;
 
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
-
+    /**
+     * Récupérer toutes les catégories
+     * @return Liste des catégories
+     */
     @GetMapping
     @Operation(
             summary = "Get categories",
